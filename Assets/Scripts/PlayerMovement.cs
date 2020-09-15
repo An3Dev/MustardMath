@@ -8,13 +8,15 @@ public class PlayerMovement : MonoBehaviour
     public float changeDirectionBoost = 2;
     public float maxSpeed = 5;
     public Transform cam;
-
+    public float turnSpeed = 90;
 
     Vector3 cameraOffset;
 
     Rigidbody2D rb;
 
     float targetDir;
+
+    
 
     private void Awake()
     {
@@ -42,53 +44,15 @@ public class PlayerMovement : MonoBehaviour
         {
             targetDir = 0;
         }
-        cam.transform.position = Vector3.Lerp(cam.transform.position, rb.transform.position + cameraOffset, 1f);
+        cam.transform.position = Vector3.Lerp(cam.transform.position, rb.transform.position + cameraOffset, 0.9f);
 
-    }
-
-    private void LateUpdate()
-    {
+        rb.MoveRotation(transform.rotation.eulerAngles.z + turnSpeed * Time.deltaTime * -targetDir);
 
     }
     private void FixedUpdate()
     {
         float currentDir = rb.velocity.normalized.x;
 
-        Vector3 force = Vector3.zero;
-
-        force = Vector3.right * targetDir * velocity;
-        //if (targetDir == -1)
-        //{
-        //    force += 
-        //    rb.AddForce(Vector3.right * targetDir * velocity);
-
-        //}
-        //else if (targetDir == 1)
-        //{
-        //    force += Vector3.right * targetDir * velocity;
-
-        //    rb.AddForce(Vector3.right * targetDir * velocity);
-        //}
-
-        transform.rotation = Quaternion.Euler(new Vector3(0, 0, -30 * targetDir));
-        //transform.rotation = Quaternion.Euler(Vector3.Lerp(transform.rotation.eulerAngles, new Vector3(0, 0, -30 * targetDir), Mathf.Abs(transform.rotation.eulerAngles.z) / 30));
-
-        if (currentDir != targetDir)
-        {
-            force += Vector3.right * targetDir * velocity * changeDirectionBoost;
-            //rb.AddTorque(targetDir * -5 * changeDirectionBoost);
-
-        }
-
-        rb.AddForce(force * Time.fixedDeltaTime, ForceMode2D.Impulse);
-
-        if (rb.velocity.sqrMagnitude > maxSpeed * maxSpeed)
-        {
-            rb.AddForce(-rb.velocity);
-        }
-
-        //rb.AddTorque(targetDir * -5);
-
-
+        rb.velocity = transform.up * velocity * Time.fixedDeltaTime;
     }
 }
