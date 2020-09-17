@@ -192,7 +192,6 @@ public class ProblemGenerator : MonoBehaviour
                 possibleSolution = (int)Mathf.Abs(solution + number);
             }
             possibleSolutionsText[i].text = possibleSolution.ToString();
-
         }
     }
 }

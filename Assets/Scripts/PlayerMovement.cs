@@ -9,14 +9,14 @@ public class PlayerMovement : MonoBehaviour
     public float maxSpeed = 5;
     public Transform cam;
     public float turnSpeed = 90;
+    public Transform exhaust;
+    public Transform particleSystemTransform;
 
     Vector3 cameraOffset;
 
     Rigidbody2D rb;
 
     float targetDir;
-
-    
 
     private void Awake()
     {
@@ -44,10 +44,10 @@ public class PlayerMovement : MonoBehaviour
         {
             targetDir = 0;
         }
+
         cam.transform.position = Vector3.Lerp(cam.transform.position, rb.transform.position + cameraOffset, 0.9f);
 
         rb.MoveRotation(transform.rotation.eulerAngles.z + turnSpeed * Time.deltaTime * -targetDir);
-
     }
     private void FixedUpdate()
     {
