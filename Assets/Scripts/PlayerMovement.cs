@@ -47,11 +47,12 @@ public class PlayerMovement : MonoBehaviour
 
         cam.transform.position = Vector3.Lerp(cam.transform.position, rb.transform.position + cameraOffset, 0.9f);
 
-        rb.MoveRotation(transform.rotation.eulerAngles.z + turnSpeed * Time.deltaTime * -targetDir);
     }
     private void FixedUpdate()
     {
         float currentDir = rb.velocity.normalized.x;
+
+        rb.MoveRotation(transform.rotation.eulerAngles.z + turnSpeed * Time.deltaTime * -targetDir);
 
         rb.velocity = transform.up * velocity * Time.fixedDeltaTime;
     }
