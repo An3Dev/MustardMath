@@ -19,7 +19,6 @@ public class BarrierSpawner : MonoBehaviour
 
         barriers.Add(Instantiate(barrierPrefab, transform));
         barriers.Add(Instantiate(barrierPrefab, new Vector3(0, (numOfRecycles + 1) * barrierSize.y), Quaternion.identity, transform));
-        Debug.Log(barrierSize.y);
         player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 

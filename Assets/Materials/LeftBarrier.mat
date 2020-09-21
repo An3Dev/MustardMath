@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Barrier
+  m_Name: LeftBarrier
   m_Shader: {fileID: -6465566751694194690, guid: b08e50c78e0a9354480a28fea02710a5,
     type: 3}
   m_ShaderKeywords: 
@@ -66,7 +66,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - Vector1_F17564E3: 0.1
+    - Vector1_F17564E3: 0.05
     - _AlphaClip: 0
     - _Blend: 0
     - _BumpScale: 1
@@ -91,7 +91,9 @@ Material:
     - _WorkflowMode: 0
     - _ZWrite: 0
     m_Colors:
-    - Vector2_43D6B11B: {r: 0.1, g: 0.1, b: 0, a: 0}
+    - Color_882F21E7: {r: 0, g: 0, b: 0, a: 0}
+    - Color_BC27B3B5: {r: 0, g: 0.07727146, b: 1, a: 0}
+    - Vector2_43D6B11B: {r: 1, g: 25, b: 0, a: 0}
     - Vector2_99A794C3: {r: 1, g: 1, b: 0, a: 0}
     - Vector2_D2735443: {r: 1, g: 0, b: 0, a: 0}
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}

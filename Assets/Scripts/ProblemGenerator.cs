@@ -30,27 +30,36 @@ public class ProblemGenerator : MonoBehaviour
     public int dividingAppearanceLevel = 15;
 
     // the 4 arrays below hold the max values that the student will be given depending on their level.
-    int[] additionRangeOfNums = new int[] { 3, 5, 10, 20, 30, 40, 50, 60};
+    int[] additionRangeOfNums = new int[] { 3, 5, 10, 20, 30, 40, 50, 60 };
+    int[] minAdditionNums = new int[] { 0, 1, 3, 10, 10, 10, 10, 10 };
 
     int[] subtractionRangeOfNums = new int[] { 5, 7, 10, 20, 30, 40, 50, 60 };
+    int[] minSubtractionNums = new int[] { 0, 1, 2, 3, 5, 10, 10, 10};
 
     int[] multiplicationRangeOfNums = new int[] { 3, 5, 7, 10, 12 };
+    int[] minMultiplicationNums = new int[] { 0, 1, 2, 3, 5, 7 };
 
     int[] divisionRangeOfNums = new int[] { 3, 5, 7, 10, 12 };
-
+    int[] minDivisionNums = new int[] { 0, 1, 2, 3, 5, 5};
+    public Transform solutionTransform;
     private void Update()
     {
-        if(Input.GetMouseButtonDown(0))
-        {
-            GenerateProblem();
-        }
+        //if(Input.GetMouseButtonDown(0))
+        //{
+        //    GenerateProblem();
+        //}
     }
 
-    void GenerateProblem()
+    public void CorrectAnswer()
+    {
+        problemText.text = numberList[0] + " " + operationString + " " + numberList[1] + " = " + solution;
+        // make animation showing the correct answer. then make it dissapear.
+    }
+
+    public void GenerateProblem()
     {
 
         numberList.Clear();
-        Debug.Log("----------------------------");
         // generate a problem with random numbers
 
         // add a random number to numberList
@@ -73,7 +82,6 @@ public class ProblemGenerator : MonoBehaviour
             }
         }
 
-        Debug.Log(maxOperation);
         int operation = Random.Range(0, maxOperation);
 
         // if the user chose a certain operation, override the random operation.
@@ -107,8 +115,8 @@ public class ProblemGenerator : MonoBehaviour
             }
 
             //int tempLevel = level >= addingRangeOfNums.Length ? addingRangeOfNums.Length - 1 : level;
-            num1 = (int)Random.Range(0, additionRangeOfNums[additionLevel] + 1);
-            num2 = (int)Random.Range(0, additionRangeOfNums[additionLevel] + 1);
+            num1 = (int)Random.Range(minAdditionNums[additionLevel], additionRangeOfNums[additionLevel] + 1);
+            num2 = (int)Random.Range(minAdditionNums[additionLevel], additionRangeOfNums[additionLevel] + 1);
 
             operationString = "+";
             solution = num1 + num2;
@@ -122,10 +130,10 @@ public class ProblemGenerator : MonoBehaviour
             }
             //int tempLevel = level - subtractingAppearanceLevel >= subtractingRangeOfNums.Length ? subtractingRangeOfNums.Length - 1 : level - subtractingAppearanceLevel;
             // make this number have a minimum of 1 if we don't want negatives.
-            num1 = Random.Range(!giveNegativeSolutions ? 1 : 0, subtractionRangeOfNums[subtractionLevel] + 1);
+            num1 = Random.Range(!giveNegativeSolutions ? 1 : minSubtractionNums[subtractionLevel], subtractionRangeOfNums[subtractionLevel] + 1);
 
             // if we're not giving negative nums, this number has to be less than or equal to num1
-            num2 = (int)Random.Range(0, !giveNegativeSolutions ? num1 : subtractionRangeOfNums[subtractionLevel] + 1);
+            num2 = (int)Random.Range(minSubtractionNums[subtractionLevel], !giveNegativeSolutions ? num1 : subtractionRangeOfNums[subtractionLevel] + 1);
 
             operationString = "-";
             solution = num1 - num2;
@@ -137,8 +145,8 @@ public class ProblemGenerator : MonoBehaviour
                 multiplicationLevel = multiplicationRangeOfNums.Length - 1;
             }
             //int tempLevel = level - multiplyingAppearanceLevel >= multiplyingRangeOfNums.Length ? multiplyingRangeOfNums.Length - 1 : level - multiplyingAppearanceLevel;
-            num1 = (int)Random.Range(0, multiplicationRangeOfNums[multiplicationLevel] + 1);
-            num2 = (int)Random.Range(0, multiplicationRangeOfNums[multiplicationLevel] + 1);
+            num1 = (int)Random.Range(minMultiplicationNums[multiplicationLevel], multiplicationRangeOfNums[multiplicationLevel] + 1);
+            num2 = (int)Random.Range(minMultiplicationNums[multiplicationLevel], multiplicationRangeOfNums[multiplicationLevel] + 1);
 
             operationString = "x";
             solution = num1 * num2;
@@ -153,24 +161,23 @@ public class ProblemGenerator : MonoBehaviour
             //int tempLevel = level - dividingAppearanceLevel >= dividingRangeOfNums.Length ? dividingRangeOfNums.Length - 1: level - dividingAppearanceLevel;
 
             operationString = "÷";
-            num1 = (int)Random.Range(0, divisionRangeOfNums[divisionLevel] + 1);
-            num2 = (int)Random.Range(1, Mathf.Ceil(divisionRangeOfNums[divisionLevel] / 2 + 1));
+            num1 = (int)Random.Range(minDivisionNums[divisionLevel], divisionRangeOfNums[divisionLevel] + 1);
+            num2 = (int)Random.Range(minDivisionNums[divisionLevel] + 1, Mathf.Ceil(divisionRangeOfNums[divisionLevel] / 2 + 1));
 
             // make num1 a multiple of num2 so it can be cleanly divided
             num1 *= num2;
 
             solution = num1 / num2;
         }
+        numberList.Add(num1);
+        numberList.Add(num2);
 
         //Debug.Log(num1 + " " + operationString + " " + num2 + " = " + solution);
         string equation = num1 + " " + operationString + " " + num2 + " = ?";
+
         problemText.text = equation;
-
-        //possibleSolutionsText[possibleSolutionsText.Length - 1].text = solution.ToString();
-
-        // Shuffle the text
-        // For each spot in the array, pick
-        // a random item to swap into that spot.
+        problemText.gameObject.SetActive(true);
+        // Shuffle the text For each spot in the array, pick a random item to swap into that spot.
         System.Random rand = new System.Random();
         for (int i = 0; i < possibleSolutionsText.Length - 1; i++)
         {
@@ -180,6 +187,7 @@ public class ProblemGenerator : MonoBehaviour
             possibleSolutionsText[j] = temp;
         }
 
+        List<int> tempSolutions = new List<int>();
         // make possible solutions
         for (int i = 0; i < possibleSolutionsText.Length; i++)
         {
@@ -188,10 +196,20 @@ public class ProblemGenerator : MonoBehaviour
             // random addition
             if (i > 0)
             {
-                int number = Random.Range(-5, 5);
-                possibleSolution = (int)Mathf.Abs(solution + number);
+                // do this until the wrong solution is not equal to the actual solution
+                while(possibleSolution == solution)
+                {                
+                    int number = Random.Range(-5, 5);
+                    possibleSolution = (int)Mathf.Abs(solution + number);
+                }            
+            } else
+            {
+                solutionTransform = possibleSolutionsText[i].transform.parent.parent;
             }
+            tempSolutions.Add(possibleSolution);
             possibleSolutionsText[i].text = possibleSolution.ToString();
+            // TODO: make sure there are no duplicate possible solutions
         }
+
     }
 }
