@@ -31,7 +31,7 @@ public class ProblemGenerator : MonoBehaviour
 
     // the 4 arrays below hold the max values that the student will be given depending on their level.
     int[] additionRangeOfNums = new int[] { 3, 5, 10, 20, 30, 40, 50, 60 };
-    int[] minAdditionNums = new int[] { 0, 1, 3, 10, 10, 10, 10, 10 };
+    int[] minAdditionNums = new int[] { 0, 1, 3, 10, 10, 10, 10, 10 }; 
 
     int[] subtractionRangeOfNums = new int[] { 5, 7, 10, 20, 30, 40, 50, 60 };
     int[] minSubtractionNums = new int[] { 0, 1, 2, 3, 5, 10, 10, 10};
