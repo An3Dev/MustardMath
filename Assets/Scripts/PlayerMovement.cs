@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     public float slowMotionProximity = 5;
     public GameObject fuelingStation;
 
+    public float distanceBetweenAnswers = 50;
+
     public float fuelPerSecond = 2;
     Vector3 cameraOffset;
 
@@ -26,6 +28,11 @@ public class PlayerMovement : MonoBehaviour
     float fuelUsed = 0;
     float maxFuel = 100;
     bool cancelSlowMo = false;
+
+    float fuelOffCameraOffset = -10;
+
+    int tries = 0;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -41,6 +48,13 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if (transform.position.y > fuelingStation.transform.position.y - fuelOffCameraOffset)
+        {
+            // Spawn the fueling station on top of the player
+            MoveFuelStation();
+        }
+
         if (Input.GetKey(KeyCode.A))
         {
             targetDir = -1;
@@ -103,21 +117,33 @@ public class PlayerMovement : MonoBehaviour
             // Check is player got answer right
             if (problemGenerator.solutionTransform == collision.transform)
             {
-                fuelUsed = 0;
-                Debug.Log("Correct, give gas");
-                
-                // move fueling station to next location
-                fuelingStation.transform.position += Vector3.up * 40;
-                fuelingStation.GetComponent<Collider2D>().enabled = true;
-
-                // make time back to normal
-                Time.timeScale = 1;
-                cancelSlowMo = false;
-
-                for (int i = 0; i < fuelingStation.transform.childCount; i++)
+                if (tries == 0)
                 {
-                    fuelingStation.transform.GetChild(i).gameObject.SetActive(true);
+                    fuelUsed -= maxFuel / 2;
+                } else if (tries == 1)
+                {
+                    fuelUsed -= maxFuel / 3;
+                    // don't spawn powerup
+                } else if (tries == 3)
+                {
+                    fuelUsed -= 1 / 4;
+                    // don't spawn powerup
                 }
+
+                if(fuelUsed < 0)
+                {
+                    fuelUsed = 0;
+                }
+
+                tries = 0;
+
+                Debug.Log("Correct, give gas");
+
+                MoveFuelStation();
+
+                // spawn power up 
+
+
                 // add satisfying effect and dissapear the fueling station.
                 // once it's not visible, move it to the next location.
 
@@ -126,11 +152,32 @@ public class PlayerMovement : MonoBehaviour
             } else
             {
                 Debug.Log("Incorrect");
+
                 collision.transform.gameObject.SetActive(false);
+
+                tries++;
+
                 // if incorrect, the chosen fuel container will dissapear and the player can choose again.
                 // The player will get less fuel for getting an answer right the second try.
             }
 
+        }
+    }
+
+    void MoveFuelStation()
+    {
+        // move fueling station to next location
+        fuelingStation.transform.position += Vector3.up * distanceBetweenAnswers;
+        fuelingStation.GetComponent<Collider2D>().enabled = true;
+
+        // make time back to normal
+        Time.timeScale = 1;
+        cancelSlowMo = false;
+
+        // enable all of the fueling tanks.
+        for (int i = 0; i < fuelingStation.transform.childCount; i++)
+        {
+            fuelingStation.transform.GetChild(i).gameObject.SetActive(true);
         }
     }
 }
