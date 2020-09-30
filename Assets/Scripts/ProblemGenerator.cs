@@ -4,11 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 using TMPro;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine.SceneManagement;
+
 public class ProblemGenerator : MonoBehaviour
 {
     public TextMeshProUGUI problemText;
-    public int additionLevel = 0, subtractionLevel = -1, multiplicationLevel = -1, divisionLevel = -1; // 0 is the easiest level.
+    public static int additionLevel = 0, subtractionLevel = 0, multiplicationLevel = 0, divisionLevel = 0; // 0 is the easiest level.
 
+    public List<int> levels;
     public TextMeshProUGUI[] possibleSolutionsText;
 
     List<float> numberList = new List<float>();
@@ -22,12 +26,14 @@ public class ProblemGenerator : MonoBehaviour
 
     public bool autoProgression = true;
 
-    public bool addingOnly, subtractingOnly, multiplyingOnly, dividingOnly;
+    public static bool additionOnly, subtractionOnly, multiplicationOnly, divisionOnly;
 
     // level at which subtracting problems appear
     public int subtractingAppearanceLevel = 3;
     public int multiplyingAppearanceLevel = 8;
     public int dividingAppearanceLevel = 15;
+
+    string levelsPrefsKey;
 
     // the 4 arrays below hold the max values that the student will be given depending on their level.
     int[] additionRangeOfNums = new int[] { 3, 5, 10, 20, 30, 40, 50, 60 };
@@ -42,18 +48,116 @@ public class ProblemGenerator : MonoBehaviour
     int[] divisionRangeOfNums = new int[] { 3, 5, 7, 10, 12 };
     int[] minDivisionNums = new int[] { 0, 1, 2, 3, 5, 5};
     public Transform solutionTransform;
-    private void Update()
+
+    private void Start()
     {
-        //if(Input.GetMouseButtonDown(0))
-        //{
-        //    GenerateProblem();
-        //}
+        SetLevels();
+    }
+    void SetLevels()
+    {
+        // Get data about levels
+        string levelsData = PlayerPrefs.GetString(levelsPrefsKey, "0,0,0,0");
+
+        String[] array = levelsData.Split(',');
+
+        for (int i = 0; i < array.Length; i++)
+        {
+            //levels.Add(int.Parse(array[i]));
+            if (i == 0)
+            {
+                additionLevel = int.Parse(array[i]);
+            }
+            else if (i == 1)
+            {
+                subtractionLevel = int.Parse(array[i]);
+            }
+            else if (i == 2)
+            {
+                multiplicationLevel = int.Parse(array[i]);
+            }
+            else if (i == 3)
+            {
+                divisionLevel = int.Parse(array[i]);
+            }
+        }
+
+        Debug.Log(additionLevel);
+        Debug.Log(subtractionLevel);
+        Debug.Log(multiplicationLevel);
+        Debug.Log(divisionLevel);
+
+    }
+
+    public void StartGame(int operation)
+    {
+        if (operation == 0)
+        {
+            additionOnly = true; // adding only
+            subtractionOnly = true;
+            multiplicationOnly = false;
+            divisionOnly = false;
+
+        } else if (operation == 1)
+        {
+            additionOnly = false;
+            subtractionOnly = true; // subtracting only          
+            multiplicationOnly = false;
+            divisionOnly = false;
+        } else if (operation == 2)
+        {
+            additionOnly = false;
+            subtractionOnly = false;     
+            multiplicationOnly = true; // multiplication only
+            divisionOnly = false;
+        } else if (operation == 3)
+        {
+            additionOnly = false;
+            subtractionOnly = false;        
+            multiplicationOnly = false;
+            divisionOnly = true; // division only
+        } else
+        {
+            additionOnly = false;
+            subtractionOnly = false;       
+            multiplicationOnly = false;
+            divisionOnly = false;
+        }
+
+        SceneManager.LoadScene(1);
     }
 
     public void CorrectAnswer()
     {
         problemText.text = numberList[0] + " " + operationString + " " + numberList[1] + " = " + solution;
         // make animation showing the correct answer. then make it dissapear.
+    }
+
+    void SaveLevels()
+    {
+        string levels = "";
+
+        for (int i = 0; i < 4; i++)
+        {
+            if (i == 0)
+            {
+                levels += additionLevel.ToString();
+            }
+            else if (i == 1)
+            {
+                levels += "," + subtractionLevel.ToString();
+            }
+            else if (i == 2)
+            {
+                levels += "," + multiplicationLevel.ToString();
+            }
+            else if (i == 3)
+            {
+                levels += "," + divisionLevel.ToString();
+            }
+
+        }
+
+        PlayerPrefs.SetString(levelsPrefsKey, levels);
     }
 
     public void GenerateProblem()
@@ -85,19 +189,19 @@ public class ProblemGenerator : MonoBehaviour
         int operation = Random.Range(0, maxOperation);
 
         // if the user chose a certain operation, override the random operation.
-        if (addingOnly)
+        if (additionOnly)
         {
             operation = 0;
         }
-        else if (subtractingOnly)
+        else if (subtractionOnly)
         {
             operation = 1;
         }
-        else if (multiplyingOnly)
+        else if (multiplicationOnly)
         {
             operation = 2;
         }
-        else if (dividingOnly)
+        else if (divisionOnly)
         {
             operation = 3;
         }
@@ -148,7 +252,7 @@ public class ProblemGenerator : MonoBehaviour
             num1 = (int)Random.Range(minMultiplicationNums[multiplicationLevel], multiplicationRangeOfNums[multiplicationLevel] + 1);
             num2 = (int)Random.Range(minMultiplicationNums[multiplicationLevel], multiplicationRangeOfNums[multiplicationLevel] + 1);
 
-            operationString = "x";
+            operationString = "×";
             solution = num1 * num2;
         }
         else if (operation == 3) // Division
