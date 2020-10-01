@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     public float slowMotionProximity = 5;
     public GameObject fuelingStation;
 
+    public float wallForce = 100000000000;
+
     public float distanceBetweenAnswers = 50;
 
     public float fuelPerSecond = 2;
@@ -33,6 +35,7 @@ public class PlayerMovement : MonoBehaviour
 
     int tries = 0;
 
+    bool gameOver = false;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -77,14 +80,13 @@ public class PlayerMovement : MonoBehaviour
         cam.transform.position = Vector3.Lerp(cam.transform.position, rb.transform.position + cameraOffset, 0.9f);
 
         fuelTransform.localPosition = new Vector3(0, 0 - (fuelUsed / maxFuel) * 0.9f, -0.1f);
-        //if (fuelTransform.localPosition.y < -0.9f)
-        //{
-        //    fuelTransform.localPosition = new Vector3(0, 0, -0.1f);
-        //}
+
+
         if (fuelUsed >= maxFuel)
         {
             Debug.Log("No fuel");
-            fuelUsed = 0;
+            gameOver = true;
+
         }
 
         // if rocket is close enough to the fueling station, slow down time to give use time to think.
@@ -97,7 +99,13 @@ public class PlayerMovement : MonoBehaviour
     }
     private void FixedUpdate()
     {
+
         rb.MoveRotation(transform.rotation.eulerAngles.z + turnSpeed * Time.deltaTime * -targetDir);
+
+        if (gameOver) 
+        {
+            return;
+        }
 
         rb.velocity = transform.up * velocity * Time.fixedDeltaTime;
     }
@@ -162,6 +170,36 @@ public class PlayerMovement : MonoBehaviour
             }
 
         }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("Barrier"))
+        {
+            // add force in opposite direction
+            MoveRocket(collision.GetContact(0).point);
+        }
+    }
+
+    // moves the rocket away from wall
+    void MoveRocket(Vector3 collisionPoint)
+    {
+        int xDir = 0;
+        if (collisionPoint.x < transform.position.x)
+        {
+            // force right
+            xDir = 1;
+
+        } else
+        {
+            // force to the left
+            xDir = -1;
+        }
+
+        Vector2 dir = new Vector2(xDir, 0.5f);
+        rb.AddForce(dir * wallForce, FOrm);
+        rb.AddTorque(-xDir * 360);
+        Debug.Log(xDir);
     }
 
     void MoveFuelStation()

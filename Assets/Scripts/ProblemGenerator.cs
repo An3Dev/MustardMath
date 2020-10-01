@@ -12,6 +12,8 @@ public class ProblemGenerator : MonoBehaviour
     public TextMeshProUGUI problemText;
     public static int additionLevel = 0, subtractionLevel = 0, multiplicationLevel = 0, divisionLevel = 0; // 0 is the easiest level.
 
+    public TextMeshProUGUI[] levelText;
+
     public List<int> levels;
     public TextMeshProUGUI[] possibleSolutionsText;
 
@@ -52,6 +54,14 @@ public class ProblemGenerator : MonoBehaviour
     private void Start()
     {
         SetLevels();
+
+        if (SceneManager.GetActiveScene().buildIndex == 0)
+        {
+            levelText[0].text = "Level " + (additionLevel + 1);
+            levelText[1].text = "Level " + (subtractionLevel + 1);
+            levelText[2].text = "Level " + (multiplicationLevel + 1);
+            levelText[3].text = "Level " + (divisionLevel + 1);
+        }
     }
     void SetLevels()
     {
@@ -80,12 +90,6 @@ public class ProblemGenerator : MonoBehaviour
                 divisionLevel = int.Parse(array[i]);
             }
         }
-
-        Debug.Log(additionLevel);
-        Debug.Log(subtractionLevel);
-        Debug.Log(multiplicationLevel);
-        Debug.Log(divisionLevel);
-
     }
 
     public void StartGame(int operation)

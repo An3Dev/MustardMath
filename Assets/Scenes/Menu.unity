@@ -2313,6 +2313,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   problemText: {fileID: 0}
+  levelText:
+  - {fileID: 2061996401}
+  - {fileID: 1399632045}
+  - {fileID: 1514671255}
+  - {fileID: 501508335}
   levels: 
   possibleSolutionsText: []
   autoProgression: 1

@@ -92,8 +92,8 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - Color_882F21E7: {r: 0, g: 0, b: 0, a: 0}
-    - Color_8FD87FFD: {r: 0, g: 0.7530308, b: 1, a: 0}
-    - Color_BC27B3B5: {r: 0, g: 0.07727146, b: 1, a: 0}
+    - Color_8FD87FFD: {r: 1, g: 0.5615012, b: 0, a: 0}
+    - Color_BC27B3B5: {r: 1, g: 0.88218874, b: 0, a: 0}
     - Vector2_43D6B11B: {r: 4, g: 40, b: 0, a: 0}
     - Vector2_99A794C3: {r: 1, g: 1, b: 0, a: 0}
     - Vector2_D2735443: {r: 0, g: 0, b: 0, a: 0}
