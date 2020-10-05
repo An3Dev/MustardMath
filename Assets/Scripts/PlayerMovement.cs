@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -16,12 +18,20 @@ public class PlayerMovement : MonoBehaviour
     public float slowMotionProximity = 5;
     public GameObject fuelingStation;
 
-    public float wallForce = 100000000000;
+    public float wallForce = 2500;
 
     public float distanceBetweenAnswers = 50;
 
     public float fuelPerSecond = 2;
+
+    public float correctFuelDissolveTime = 1f;
+    public float incorrectFuelDissolveTime = 0.5f;
+
+    public ParticleSystem correctAnswerPS, incorrectAnswerPS;
+
     Vector3 cameraOffset;
+
+
 
     Rigidbody2D rb;
 
@@ -36,6 +46,9 @@ public class PlayerMovement : MonoBehaviour
     int tries = 0;
 
     bool gameOver = false;
+
+    float lastMoveTime = 0;
+    
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -79,14 +92,15 @@ public class PlayerMovement : MonoBehaviour
 
         cam.transform.position = Vector3.Lerp(cam.transform.position, rb.transform.position + cameraOffset, 0.9f);
 
-        fuelTransform.localPosition = new Vector3(0, 0 - (fuelUsed / maxFuel) * 0.9f, -0.1f);
+        fuelTransform.localPosition = new Vector3(0, 0.2f - (fuelUsed / maxFuel) * 0.9f, -0.1f);
 
 
         if (fuelUsed >= maxFuel)
         {
             Debug.Log("No fuel");
             gameOver = true;
-
+            SceneManager.LoadScene(0);
+            // show stats
         }
 
         // if rocket is close enough to the fueling station, slow down time to give use time to think.
@@ -122,7 +136,7 @@ public class PlayerMovement : MonoBehaviour
         
         if (collision.gameObject.layer == LayerMask.NameToLayer("FuelingStation"))
         {
-            // Check is player got answer right
+            // If player got answer right
             if (problemGenerator.solutionTransform == collision.transform)
             {
                 if (tries == 0)
@@ -147,13 +161,20 @@ public class PlayerMovement : MonoBehaviour
 
                 Debug.Log("Correct, give gas");
 
-                MoveFuelStation();
+                //MoveFuelStation();
 
                 // spawn power up 
 
+                // show particle system.
+                correctAnswerPS.transform.position = collision.transform.position;
+                correctAnswerPS.Play();
 
-                // add satisfying effect and dissapear the fueling station.
-                // once it's not visible, move it to the next location.
+                // fade away images of all fuel tanks.
+                for(int i = 0; i < 4; i++)
+                {
+                    StartCoroutine(FadeImage(true, fuelingStation.transform.GetChild(i).GetComponent<SpriteRenderer>(), fuelingStation.transform.GetChild(i) == collision.transform, true));
+                    StartCoroutine(FadeImage(true, fuelingStation.transform.GetChild(i).GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>(), fuelingStation.transform.GetChild(i) == collision.transform, true));
+                }
 
                 // show correct equation for a few seconds, then dissolve it.
                 problemGenerator.CorrectAnswer();
@@ -161,7 +182,17 @@ public class PlayerMovement : MonoBehaviour
             {
                 Debug.Log("Incorrect");
 
-                collision.transform.gameObject.SetActive(false);
+                incorrectAnswerPS.transform.position = collision.transform.position;
+                incorrectAnswerPS.Play();
+
+                StartCoroutine(FadeImage(true, collision.transform.GetComponent<SpriteRenderer>(), false, false));
+                StartCoroutine(FadeImage(true, collision.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>(), false, false));
+
+
+                // disable collider
+
+
+                //collision.transform.gameObject.SetActive(false);
 
                 tries++;
 
@@ -178,6 +209,10 @@ public class PlayerMovement : MonoBehaviour
         {
             // add force in opposite direction
             MoveRocket(collision.GetContact(0).point);
+
+        } else if (collision.collider.CompareTag("Obstacle"))
+        {
+            Debug.Log("Obstacle");
         }
     }
 
@@ -197,13 +232,93 @@ public class PlayerMovement : MonoBehaviour
         }
 
         Vector2 dir = new Vector2(xDir, 0.5f);
-        rb.AddForce(dir * wallForce, FOrm);
+        rb.AddForce(dir * wallForce, ForceMode2D.Impulse);
         rb.AddTorque(-xDir * 360);
         Debug.Log(xDir);
     }
 
+    IEnumerator FadeImage(bool fadeAway, SpriteRenderer renderer, bool isCorrectAnswer, bool moveFuel)
+    {
+        // fade from opaque to transparent
+        if (fadeAway)
+        {
+            float fadeTime = isCorrectAnswer ? correctFuelDissolveTime : incorrectFuelDissolveTime;
+            if (moveFuel)
+            {
+                renderer.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+            }
+            // loop over 1 second backwards
+            for (float i = fadeTime; i >= 0; i -= Time.deltaTime)
+            {
+                // set color with i as alpha
+                renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, i);
+                if (i <= 0.01f)
+                {
+                    // if image faded away, move the fuel
+                    if (!isCorrectAnswer && moveFuel)
+                    {
+                        MoveFuelStation();
+                    }
+                }
+                yield return null;
+            }
+        }
+        // fade from transparent to opaque
+        else
+        {
+            // loop over 1 second
+            for (float i = 0; i <= 1; i += Time.deltaTime)
+            {
+                // set color with i as alpha
+                renderer.color = new Color(1, 1, 1, i);
+                yield return null;
+            }
+        }
+    }
+
+    IEnumerator FadeImage(bool fadeAway, TextMeshProUGUI text, bool isCorrectAnswer, bool moveFuel)
+    {
+        // fade from opaque to transparent
+        if (fadeAway)
+        {
+            float fadeTime = isCorrectAnswer ? correctFuelDissolveTime : incorrectFuelDissolveTime;
+            // loop over 1 second backwards
+            for (float i = fadeTime; i >= 0; i -= Time.deltaTime)
+            {
+                // set color with i as alpha
+                text.color = new Color(text.color.r, text.color.g, text.color.b, i);
+                if (i <= 0.01f)
+                {
+                    // if image faded away, move the fuel
+                    if (!isCorrectAnswer && moveFuel)
+                    {
+                        MoveFuelStation();
+                    }
+                }
+                yield return null;
+            }
+        }
+        // fade from transparent to opaque
+        else
+        {
+            // loop over 1 second
+            for (float i = 0; i <= 1; i += Time.deltaTime)
+            {
+                // set color with i as alpha
+                text.color = new Color(1, 1, 1, i);
+                yield return null;
+            }
+        }
+    }
+
     void MoveFuelStation()
     {
+        if (Time.timeSinceLevelLoad - lastMoveTime < 0.5f)
+        {
+            return;
+        }
+
+        lastMoveTime = Time.timeSinceLevelLoad;
         // move fueling station to next location
         fuelingStation.transform.position += Vector3.up * distanceBetweenAnswers;
         fuelingStation.GetComponent<Collider2D>().enabled = true;
@@ -216,6 +331,13 @@ public class PlayerMovement : MonoBehaviour
         for (int i = 0; i < fuelingStation.transform.childCount; i++)
         {
             fuelingStation.transform.GetChild(i).gameObject.SetActive(true);
+
+            SpriteRenderer renderer = fuelingStation.transform.GetChild(i).GetComponent<SpriteRenderer>();
+            renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, 1);
+
+            fuelingStation.transform.GetChild(i).GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color(1, 1, 1, 1);
+            renderer.gameObject.GetComponent<BoxCollider2D>().enabled = true;
+
         }
     }
 }
