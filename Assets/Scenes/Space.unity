@@ -5207,10 +5207,18 @@ MonoBehaviour:
   problemGenerator: {fileID: 1331715111}
   slowMotionProximity: 9
   fuelingStation: {fileID: 319155570}
+  fuelingTankRenderer1: {fileID: 1477029170}
+  fuelingTankRenderer2: {fileID: 1832753471}
+  fuelingTankRenderer3: {fileID: 118524131}
+  fuelingTankRenderer4: {fileID: 1490304853}
+  tankTextMesh1: {fileID: 1060650612}
+  tankTextMesh2: {fileID: 1110162380}
+  tankTextMesh3: {fileID: 1986438935}
+  tankTextMesh4: {fileID: 2093094108}
   wallForce: 2500
   distanceBetweenAnswers: 50
   fuelPerSecond: 3.5
-  correctFuelDissolveTime: 0.5
+  correctFuelDissolveTime: 0.2
   incorrectFuelDissolveTime: 0.2
   correctAnswerPS: {fileID: 594613930}
   incorrectAnswerPS: {fileID: 56525990}

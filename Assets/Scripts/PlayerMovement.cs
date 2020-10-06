@@ -18,6 +18,9 @@ public class PlayerMovement : MonoBehaviour
     public float slowMotionProximity = 5;
     public GameObject fuelingStation;
 
+    public SpriteRenderer fuelingTankRenderer1, fuelingTankRenderer2, fuelingTankRenderer3, fuelingTankRenderer4;
+    public TextMeshProUGUI tankTextMesh1, tankTextMesh2, tankTextMesh3, tankTextMesh4;
+
     public float wallForce = 2500;
 
     public float distanceBetweenAnswers = 50;
@@ -177,6 +180,8 @@ public class PlayerMovement : MonoBehaviour
                 }
 
                 // show correct equation for a few seconds, then dissolve it.
+
+
                 problemGenerator.CorrectAnswer();
             } else
             {
@@ -190,7 +195,7 @@ public class PlayerMovement : MonoBehaviour
 
 
                 // disable collider
-
+                collision.transform.GetComponent<Collider2D>().enabled = false;
 
                 //collision.transform.gameObject.SetActive(false);
 
@@ -246,7 +251,9 @@ public class PlayerMovement : MonoBehaviour
             if (moveFuel)
             {
                 renderer.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+                renderer.color = new Color(renderer.color.r, renderer.color.g, 1);
             }
+
             // loop over 1 second backwards
             for (float i = fadeTime; i >= 0; i -= Time.deltaTime)
             {
@@ -254,26 +261,28 @@ public class PlayerMovement : MonoBehaviour
                 renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, i);
                 if (i <= 0.01f)
                 {
-                    // if image faded away, move the fuel
-                    if (!isCorrectAnswer && moveFuel)
+                    if (moveFuel)
                     {
+                        Debug.Log("Faded away");
+
                         MoveFuelStation();
                     }
+
                 }
                 yield return null;
             }
         }
         // fade from transparent to opaque
-        else
-        {
-            // loop over 1 second
-            for (float i = 0; i <= 1; i += Time.deltaTime)
-            {
-                // set color with i as alpha
-                renderer.color = new Color(1, 1, 1, i);
-                yield return null;
-            }
-        }
+        //else
+        //{
+        //    // loop over 1 second
+        //    for (float i = 0; i <= 1; i += Time.deltaTime)
+        //    {
+        //        // set color with i as alpha
+        //        renderer.color = new Color(1, 1, 1, i);
+        //        yield return null;
+        //    }
+        //}
     }
 
     IEnumerator FadeImage(bool fadeAway, TextMeshProUGUI text, bool isCorrectAnswer, bool moveFuel)
@@ -328,15 +337,28 @@ public class PlayerMovement : MonoBehaviour
         cancelSlowMo = false;
 
         // enable all of the fueling tanks.
+
+        fuelingTankRenderer1.color = new Color(fuelingTankRenderer1.color.r, fuelingTankRenderer1.color.g, fuelingTankRenderer1.color.b, 1);
+        fuelingTankRenderer2.color = new Color(fuelingTankRenderer2.color.r, fuelingTankRenderer2.color.g, fuelingTankRenderer2.color.b, 1);
+        fuelingTankRenderer3.color = new Color(fuelingTankRenderer3.color.r, fuelingTankRenderer3.color.g, fuelingTankRenderer3.color.b, 1);
+        fuelingTankRenderer4.color = new Color(fuelingTankRenderer4.color.r, fuelingTankRenderer4.color.g, fuelingTankRenderer4.color.b, 1);
+
+        tankTextMesh1.color = new Color(255, 255, 255, 1);
+        tankTextMesh2.color = new Color(255, 255, 255, 1);
+        tankTextMesh3.color = new Color(255, 255, 255, 1);
+        tankTextMesh4.color = new Color(255, 255, 255, 1);
+
+        Debug.Log("Test");
+
         for (int i = 0; i < fuelingStation.transform.childCount; i++)
         {
             fuelingStation.transform.GetChild(i).gameObject.SetActive(true);
 
-            SpriteRenderer renderer = fuelingStation.transform.GetChild(i).GetComponent<SpriteRenderer>();
-            renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, 1);
+            //SpriteRenderer renderer = fuelingStation.transform.GetChild(i).GetComponent<SpriteRenderer>();
+            //renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, 1);
 
-            fuelingStation.transform.GetChild(i).GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color(1, 1, 1, 1);
-            renderer.gameObject.GetComponent<BoxCollider2D>().enabled = true;
+            //fuelingStation.transform.GetChild(i).GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color(1, 1, 1, 1);
+            fuelingStation.transform.GetChild(i).gameObject.GetComponent<BoxCollider2D>().enabled = true;
 
         }
     }
