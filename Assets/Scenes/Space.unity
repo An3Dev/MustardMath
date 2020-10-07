@@ -4895,6 +4895,8 @@ GameObject:
   - component: {fileID: 118524129}
   - component: {fileID: 118524131}
   - component: {fileID: 118524130}
+  - component: {fileID: 118524133}
+  - component: {fileID: 118524132}
   m_Layer: 9
   m_Name: FuelTanks (2)
   m_TagString: Untagged
@@ -4993,6 +4995,39 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &118524132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 118524128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7e8c8e3beb9ccc41b51c35c7b32d5bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  problemGenerator: {fileID: 0}
+  playerMovement: {fileID: 461696632}
+--- !u!95 &118524133
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 118524128}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 12a685dfc9eb64040bdd74f3f22feb11, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &319155570
 GameObject:
   m_ObjectHideFlags: 0
@@ -5215,6 +5250,10 @@ MonoBehaviour:
   tankTextMesh2: {fileID: 1110162380}
   tankTextMesh3: {fileID: 1986438935}
   tankTextMesh4: {fileID: 2093094108}
+  fuelTankAnimator1: {fileID: 0}
+  fuelTankAnimator2: {fileID: 0}
+  fuelTankAnimator3: {fileID: 0}
+  fuelTankAnimator4: {fileID: 0}
   wallForce: 2500
   distanceBetweenAnswers: 50
   fuelPerSecond: 3.5
@@ -20044,6 +20083,7 @@ GameObject:
   - component: {fileID: 1110162379}
   - component: {fileID: 1110162381}
   - component: {fileID: 1110162380}
+  - component: {fileID: 1110162382}
   m_Layer: 9
   m_Name: Text (1)
   m_TagString: Untagged
@@ -20167,6 +20207,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1110162378}
   m_CullTransparentMesh: 0
+--- !u!95 &1110162382
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1110162378}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 12a685dfc9eb64040bdd74f3f22feb11, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1180370113
 GameObject:
   m_ObjectHideFlags: 0
@@ -25266,6 +25325,8 @@ GameObject:
   - component: {fileID: 1477029171}
   - component: {fileID: 1477029170}
   - component: {fileID: 1477029172}
+  - component: {fileID: 1477029174}
+  - component: {fileID: 1477029173}
   m_Layer: 9
   m_Name: FuelTanks
   m_TagString: Untagged
@@ -25364,6 +25425,39 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.7876029, y: 1.7066841}
   m_EdgeRadius: 0
+--- !u!114 &1477029173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1477029169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7e8c8e3beb9ccc41b51c35c7b32d5bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  problemGenerator: {fileID: 0}
+  playerMovement: {fileID: 461696632}
+--- !u!95 &1477029174
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1477029169}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 12a685dfc9eb64040bdd74f3f22feb11, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1490304850
 GameObject:
   m_ObjectHideFlags: 0
@@ -25375,6 +25469,8 @@ GameObject:
   - component: {fileID: 1490304851}
   - component: {fileID: 1490304853}
   - component: {fileID: 1490304852}
+  - component: {fileID: 1490304855}
+  - component: {fileID: 1490304854}
   m_Layer: 9
   m_Name: FuelTanks (3)
   m_TagString: Untagged
@@ -25473,6 +25569,39 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1490304854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1490304850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7e8c8e3beb9ccc41b51c35c7b32d5bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  problemGenerator: {fileID: 0}
+  playerMovement: {fileID: 461696632}
+--- !u!95 &1490304855
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1490304850}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 12a685dfc9eb64040bdd74f3f22feb11, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1499489338
 GameObject:
   m_ObjectHideFlags: 0
@@ -30564,6 +30693,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1809018390}
   - component: {fileID: 1809018391}
+  - component: {fileID: 1809018392}
   m_Layer: 9
   m_Name: Canvas
   m_TagString: Untagged
@@ -30612,6 +30742,25 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!95 &1809018392
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809018389}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 12a685dfc9eb64040bdd74f3f22feb11, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1832753468
 GameObject:
   m_ObjectHideFlags: 0
@@ -30623,6 +30772,8 @@ GameObject:
   - component: {fileID: 1832753469}
   - component: {fileID: 1832753471}
   - component: {fileID: 1832753470}
+  - component: {fileID: 1832753473}
+  - component: {fileID: 1832753472}
   m_Layer: 9
   m_Name: FuelTanks (1)
   m_TagString: Untagged
@@ -30721,6 +30872,39 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1832753472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1832753468}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7e8c8e3beb9ccc41b51c35c7b32d5bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  problemGenerator: {fileID: 0}
+  playerMovement: {fileID: 461696632}
+--- !u!95 &1832753473
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1832753468}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 12a685dfc9eb64040bdd74f3f22feb11, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1871396800
 GameObject:
   m_ObjectHideFlags: 0

@@ -19,7 +19,8 @@ public class PlayerMovement : MonoBehaviour
     public GameObject fuelingStation;
 
     public SpriteRenderer fuelingTankRenderer1, fuelingTankRenderer2, fuelingTankRenderer3, fuelingTankRenderer4;
-    public TextMeshProUGUI tankTextMesh1, tankTextMesh2, tankTextMesh3, tankTextMesh4;
+    //public TextMeshProUGUI tankTextMesh1, tankTextMesh2, tankTextMesh3, tankTextMesh4;
+    public Animator fuelTankAnimator1, fuelTankAnimator2, fuelTankAnimator3, fuelTankAnimator4;
 
     public float wallForce = 2500;
 
@@ -27,13 +28,14 @@ public class PlayerMovement : MonoBehaviour
 
     public float fuelPerSecond = 2;
 
-    public float correctFuelDissolveTime = 1f;
-    public float incorrectFuelDissolveTime = 0.5f;
+    //public float correctFuelDissolveTime = 1f;
+    //public float incorrectFuelDissolveTime = 0.5f;
 
     public ParticleSystem correctAnswerPS, incorrectAnswerPS;
 
     Vector3 cameraOffset;
 
+    private Color fuelTankColor;
 
 
     Rigidbody2D rb;
@@ -41,7 +43,7 @@ public class PlayerMovement : MonoBehaviour
     float targetDir;
 
     float fuelUsed = 0;
-    float maxFuel = 100;
+    public float maxFuel = 100;
     bool cancelSlowMo = false;
 
     float fuelOffCameraOffset = -10;
@@ -62,12 +64,13 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         cameraOffset = cam.position - transform.position;
+        fuelTankColor = fuelingTankRenderer1.color;
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        // if player passed the fueling station
         if (transform.position.y > fuelingStation.transform.position.y - fuelOffCameraOffset)
         {
             // Spawn the fueling station on top of the player
@@ -95,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
 
         cam.transform.position = Vector3.Lerp(cam.transform.position, rb.transform.position + cameraOffset, 0.9f);
 
-        fuelTransform.localPosition = new Vector3(0, 0.2f - (fuelUsed / maxFuel) * 0.9f, -0.1f);
+        fuelTransform.localPosition = new Vector3(0, 0.216f - (fuelUsed / maxFuel) * 1.396f, -0.1f);
 
 
         if (fuelUsed >= maxFuel)
@@ -173,14 +176,16 @@ public class PlayerMovement : MonoBehaviour
                 correctAnswerPS.Play();
 
                 // fade away images of all fuel tanks.
-                for(int i = 0; i < 4; i++)
-                {
-                    StartCoroutine(FadeImage(true, fuelingStation.transform.GetChild(i).GetComponent<SpriteRenderer>(), fuelingStation.transform.GetChild(i) == collision.transform, true));
-                    StartCoroutine(FadeImage(true, fuelingStation.transform.GetChild(i).GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>(), fuelingStation.transform.GetChild(i) == collision.transform, true));
-                }
+                fuelTankAnimator1.SetTrigger("Fade");
+                fuelTankAnimator2.SetTrigger("Fade");
+                fuelTankAnimator3.SetTrigger("Fade");
+                fuelTankAnimator4.SetTrigger("Fade");
+
 
                 // show correct equation for a few seconds, then dissolve it.
 
+
+                // obstacles. fuel position.y - 20
 
                 problemGenerator.CorrectAnswer();
             } else
@@ -190,9 +195,12 @@ public class PlayerMovement : MonoBehaviour
                 incorrectAnswerPS.transform.position = collision.transform.position;
                 incorrectAnswerPS.Play();
 
-                StartCoroutine(FadeImage(true, collision.transform.GetComponent<SpriteRenderer>(), false, false));
-                StartCoroutine(FadeImage(true, collision.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>(), false, false));
+                collision.transform.GetComponent<Animator>().SetTrigger("Wrong");
 
+                //StartCoroutine(FadeImage(true, collision.transform.GetComponent<SpriteRenderer>(), false, false));
+                //StartCoroutine(FadeImage(true, collision.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>(), false, false));
+
+                // fade away wrong fuel tank
 
                 // disable collider
                 collision.transform.GetComponent<Collider2D>().enabled = false;
@@ -242,85 +250,85 @@ public class PlayerMovement : MonoBehaviour
         Debug.Log(xDir);
     }
 
-    IEnumerator FadeImage(bool fadeAway, SpriteRenderer renderer, bool isCorrectAnswer, bool moveFuel)
-    {
-        // fade from opaque to transparent
-        if (fadeAway)
-        {
-            float fadeTime = isCorrectAnswer ? correctFuelDissolveTime : incorrectFuelDissolveTime;
-            if (moveFuel)
-            {
-                renderer.gameObject.GetComponent<BoxCollider2D>().enabled = false;
-                renderer.color = new Color(renderer.color.r, renderer.color.g, 1);
-            }
+    //IEnumerator FadeImage(bool fadeAway, SpriteRenderer renderer, bool isCorrectAnswer, bool moveFuel)
+    //{
+    //    // fade from opaque to transparent
+    //    if (fadeAway)
+    //    {
+    //        //float fadeTime = isCorrectAnswer ? correctFuelDissolveTime : incorrectFuelDissolveTime;
+    //        if (moveFuel)
+    //        {
+    //            renderer.gameObject.GetComponent<BoxCollider2D>().enabled = false;
+    //            renderer.color = fuelTankColor;
+    //        }
 
-            // loop over 1 second backwards
-            for (float i = fadeTime; i >= 0; i -= Time.deltaTime)
-            {
-                // set color with i as alpha
-                renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, i);
-                if (i <= 0.01f)
-                {
-                    if (moveFuel)
-                    {
-                        Debug.Log("Faded away");
+    //        // loop over 1 second backwards
+    //        for (float i = fadeTime; i >= 0; i -= Time.deltaTime)
+    //        {
+    //            // set color with i as alpha
+    //            renderer.color = new Color(fuelTankColor.r, fuelTankColor.g, fuelTankColor.b, i);
+    //            if (i <= 0.01f)
+    //            {
+    //                if (moveFuel)
+    //                {
+    //                    Debug.Log(renderer.transform + " Faded away");
 
-                        MoveFuelStation();
-                    }
+    //                    MoveFuelStation();
+    //                }
 
-                }
-                yield return null;
-            }
-        }
-        // fade from transparent to opaque
-        //else
-        //{
-        //    // loop over 1 second
-        //    for (float i = 0; i <= 1; i += Time.deltaTime)
-        //    {
-        //        // set color with i as alpha
-        //        renderer.color = new Color(1, 1, 1, i);
-        //        yield return null;
-        //    }
-        //}
-    }
+    //            }
+    //            yield return null;
+    //        }
+    //    }
+    //    // fade from transparent to opaque
+    //    //else
+    //    //{
+    //    //    // loop over 1 second
+    //    //    for (float i = 0; i <= 1; i += Time.deltaTime)
+    //    //    {
+    //    //        // set color with i as alpha
+    //    //        renderer.color = new Color(1, 1, 1, i);
+    //    //        yield return null;
+    //    //    }
+    //    //}
+    //}
 
-    IEnumerator FadeImage(bool fadeAway, TextMeshProUGUI text, bool isCorrectAnswer, bool moveFuel)
-    {
-        // fade from opaque to transparent
-        if (fadeAway)
-        {
-            float fadeTime = isCorrectAnswer ? correctFuelDissolveTime : incorrectFuelDissolveTime;
-            // loop over 1 second backwards
-            for (float i = fadeTime; i >= 0; i -= Time.deltaTime)
-            {
-                // set color with i as alpha
-                text.color = new Color(text.color.r, text.color.g, text.color.b, i);
-                if (i <= 0.01f)
-                {
-                    // if image faded away, move the fuel
-                    if (!isCorrectAnswer && moveFuel)
-                    {
-                        MoveFuelStation();
-                    }
-                }
-                yield return null;
-            }
-        }
-        // fade from transparent to opaque
-        else
-        {
-            // loop over 1 second
-            for (float i = 0; i <= 1; i += Time.deltaTime)
-            {
-                // set color with i as alpha
-                text.color = new Color(1, 1, 1, i);
-                yield return null;
-            }
-        }
-    }
+    //IEnumerator FadeImage(bool fadeAway, TextMeshProUGUI text, bool isCorrectAnswer, bool moveFuel)
+    //{
+    //    // fade from opaque to transparent
+    //    if (fadeAway)
+    //    {
+    //        float fadeTime = isCorrectAnswer ? correctFuelDissolveTime : incorrectFuelDissolveTime;
+    //        // loop over 1 second backwards
+    //        for (float i = fadeTime; i >= 0; i -= Time.deltaTime)
+    //        {
+    //            // set color with i as alpha
+    //            text.color = new Color(text.color.r, text.color.g, text.color.b, i);
+    //            if (i <= 0.01f)
+    //            {
+    //                // if image faded away, move the fuel
+    //                if (!isCorrectAnswer && moveFuel)
+    //                {
+    //                    MoveFuelStation();
+    //                }
+    //            }
+    //            yield return null;
+    //        }
+    //    }
+    //    // fade from transparent to opaque
+    //    else
+    //    {
+    //        // loop over 1 second
+    //        for (float i = 0; i <= 1; i += Time.deltaTime)
+    //        {
+    //            // set color with i as alpha
+    //            text.color = new Color(1, 1, 1, i);
+    //            yield return null;
+    //        }
+    //    }
+    //}
 
-    void MoveFuelStation()
+    public void MoveFuelStation()
     {
         if (Time.timeSinceLevelLoad - lastMoveTime < 0.5f)
         {
@@ -336,19 +344,24 @@ public class PlayerMovement : MonoBehaviour
         Time.timeScale = 1;
         cancelSlowMo = false;
 
+        fuelTankAnimator1.SetTrigger("Reset");
+        fuelTankAnimator2.SetTrigger("Reset");
+
+        fuelTankAnimator3.SetTrigger("Reset");
+
+        fuelTankAnimator4.SetTrigger("Reset");
+
         // enable all of the fueling tanks.
 
-        fuelingTankRenderer1.color = new Color(fuelingTankRenderer1.color.r, fuelingTankRenderer1.color.g, fuelingTankRenderer1.color.b, 1);
-        fuelingTankRenderer2.color = new Color(fuelingTankRenderer2.color.r, fuelingTankRenderer2.color.g, fuelingTankRenderer2.color.b, 1);
-        fuelingTankRenderer3.color = new Color(fuelingTankRenderer3.color.r, fuelingTankRenderer3.color.g, fuelingTankRenderer3.color.b, 1);
-        fuelingTankRenderer4.color = new Color(fuelingTankRenderer4.color.r, fuelingTankRenderer4.color.g, fuelingTankRenderer4.color.b, 1);
+        //fuelingTankRenderer1.color = fuelTankColor;
+        //fuelingTankRenderer2.color = fuelTankColor;
+        //fuelingTankRenderer3.color = fuelTankColor;
+        //fuelingTankRenderer4.color = fuelTankColor;
 
-        tankTextMesh1.color = new Color(255, 255, 255, 1);
-        tankTextMesh2.color = new Color(255, 255, 255, 1);
-        tankTextMesh3.color = new Color(255, 255, 255, 1);
-        tankTextMesh4.color = new Color(255, 255, 255, 1);
-
-        Debug.Log("Test");
+        //tankTextMesh1.color = new Color(255, 255, 255, 1);
+        //tankTextMesh2.color = new Color(255, 255, 255, 1);
+        //tankTextMesh3.color = new Color(255, 255, 255, 1);
+        //tankTextMesh4.color = new Color(255, 255, 255, 1);
 
         for (int i = 0; i < fuelingStation.transform.childCount; i++)
         {

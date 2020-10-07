@@ -6,7 +6,7 @@ public class FuelingStation : MonoBehaviour
 {
 
     public ProblemGenerator problemGenerator;
-
+    public PlayerMovement playerMovement;
     //private void OnTriggerEnter2D(Collider2D collision)
     //{
     //    if (collision.CompareTag("Player"))
@@ -17,4 +17,9 @@ public class FuelingStation : MonoBehaviour
     //        // slow down time when player is close
     //    }
     //}
+
+    public void AnimationEnded()
+    {
+        playerMovement.MoveFuelStation();
+    }
 }

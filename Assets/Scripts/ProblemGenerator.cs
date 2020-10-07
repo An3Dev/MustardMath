@@ -63,10 +63,9 @@ public class ProblemGenerator : MonoBehaviour
             levelText[3].text = "Level " + (divisionLevel + 1);
         }
 
-        void SpawnObstacles() {
-
-        }
+        
     }
+
     void SetLevels()
     {
         // Get data about levels
@@ -139,7 +138,7 @@ public class ProblemGenerator : MonoBehaviour
         problemText.text = numberList[0] + " " + operationString + " " + numberList[1] + " = " + solution;
         // make animation showing the correct answer. then make it dissapear.
 
-        // spawn obstacles. fuel position.y - 20
+
     }
 
     void SaveLevels()
