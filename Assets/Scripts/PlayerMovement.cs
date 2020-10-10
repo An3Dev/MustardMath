@@ -17,6 +17,7 @@ public class PlayerMovement : MonoBehaviour
     public ProblemGenerator problemGenerator;
     public float slowMotionProximity = 5;
     public GameObject fuelingStation;
+    public Animator canvasAnimator;
 
     public SpriteRenderer fuelingTankRenderer1, fuelingTankRenderer2, fuelingTankRenderer3, fuelingTankRenderer4;
     //public TextMeshProUGUI tankTextMesh1, tankTextMesh2, tankTextMesh3, tankTextMesh4;
@@ -101,11 +102,12 @@ public class PlayerMovement : MonoBehaviour
         fuelTransform.localPosition = new Vector3(0, 0.216f - (fuelUsed / maxFuel) * 1.396f, -0.1f);
 
 
-        if (fuelUsed >= maxFuel)
+        if (fuelUsed >= maxFuel && !gameOver)
         {
             Debug.Log("No fuel");
             gameOver = true;
-            SceneManager.LoadScene(0);
+            canvasAnimator.SetTrigger("GameOver");
+            //SceneManager.LoadScene(0);
             // show stats
         }
 
@@ -117,6 +119,7 @@ public class PlayerMovement : MonoBehaviour
 
         fuelUsed += fuelPerSecond * Time.deltaTime;
     }
+
     private void FixedUpdate()
     {
 
@@ -129,6 +132,16 @@ public class PlayerMovement : MonoBehaviour
 
         rb.velocity = transform.up * velocity * Time.fixedDeltaTime;
     }
+
+    public void OpenMenuScene()
+    {
+        SceneManager.LoadScene(0);
+    }
+    public void TryAgain()
+    {
+        SceneManager.LoadScene(1);
+    }
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -152,9 +165,12 @@ public class PlayerMovement : MonoBehaviour
                 {
                     fuelUsed -= maxFuel / 3;
                     // don't spawn powerup
-                } else if (tries == 3)
+                } else if (tries == 2)
                 {
-                    fuelUsed -= 1 / 4;
+                    fuelUsed -= maxFuel / 4;
+                    // reset streak.
+                    problemGenerator.WrongAnswer();
+
                     // don't spawn powerup
                 }
 

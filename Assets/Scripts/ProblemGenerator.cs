@@ -22,6 +22,7 @@ public class ProblemGenerator : MonoBehaviour
     float solution;
     string operationString;
     bool giveNegativeSolutions = false;
+    public static bool[] operations = new bool[] { true, true, true, true };
 
     // the difficulty at which negative numbers appear
     int negativeNumLevel = 4;
@@ -29,6 +30,7 @@ public class ProblemGenerator : MonoBehaviour
     public bool autoProgression = true;
 
     public static bool additionOnly, subtractionOnly, multiplicationOnly, divisionOnly;
+    int additionStreak, subtractionStreak, multiplicationStreak, divisionStreak;
 
     // level at which subtracting problems appear
     public int subtractingAppearanceLevel = 3;
@@ -39,7 +41,7 @@ public class ProblemGenerator : MonoBehaviour
 
     // the 4 arrays below hold the max values that the student will be given depending on their level.
     int[] additionRangeOfNums = new int[] { 3, 5, 10, 20, 30, 40, 50, 60 };
-    int[] minAdditionNums = new int[] { 0, 1, 3, 10, 10, 10, 10, 10 }; 
+    int[] minAdditionNums = new     int[] { 0, 1, 1, 5, 5, 10, 10, 10 };
 
     int[] subtractionRangeOfNums = new int[] { 5, 7, 10, 20, 30, 40, 50, 60 };
     int[] minSubtractionNums = new int[] { 0, 1, 2, 3, 5, 10, 10, 10};
@@ -51,9 +53,20 @@ public class ProblemGenerator : MonoBehaviour
     int[] minDivisionNums = new int[] { 0, 1, 2, 3, 5, 5};
     public Transform solutionTransform;
 
+    const String additionStreakKey = "AdditionStreak", subtractionStreakKey = "SubtractionStreak", multiplicationStreakKey = "MultiplicationStreak", divisionStreakKey = "DivisionStreak";
+
+    int randomOperation = -1;
+    int streaksToProgress = 3;
+
     private void Start()
     {
         SetLevels();
+
+        // get streak data
+        additionStreak = PlayerPrefs.GetInt(additionStreakKey, 0);
+        subtractionStreak = PlayerPrefs.GetInt(subtractionStreakKey, 0);
+        multiplicationStreak = PlayerPrefs.GetInt(multiplicationStreakKey, 0);
+        divisionStreak = PlayerPrefs.GetInt(divisionStreakKey, 0);
 
         if (SceneManager.GetActiveScene().buildIndex == 0)
         {
@@ -61,9 +74,7 @@ public class ProblemGenerator : MonoBehaviour
             levelText[1].text = "Level " + (subtractionLevel + 1);
             levelText[2].text = "Level " + (multiplicationLevel + 1);
             levelText[3].text = "Level " + (divisionLevel + 1);
-        }
-
-        
+        }       
     }
 
     void SetLevels()
@@ -71,64 +82,85 @@ public class ProblemGenerator : MonoBehaviour
         // Get data about levels
         string levelsData = PlayerPrefs.GetString(levelsPrefsKey, "0,0,0,0");
 
-        String[] array = levelsData.Split(',');
+        string[] array = levelsData.Split(',');
 
         for (int i = 0; i < array.Length; i++)
         {
-            //levels.Add(int.Parse(array[i]));
             if (i == 0)
             {
                 additionLevel = int.Parse(array[i]);
+                Debug.Log("Level: " + additionLevel);
             }
             else if (i == 1)
             {
                 subtractionLevel = int.Parse(array[i]);
+                Debug.Log("Level: " + subtractionLevel);
+
             }
             else if (i == 2)
             {
                 multiplicationLevel = int.Parse(array[i]);
+                Debug.Log("Level: " + multiplicationLevel);
+
             }
             else if (i == 3)
             {
                 divisionLevel = int.Parse(array[i]);
+                Debug.Log("Level: " + divisionLevel);
+
             }
         }
     }
 
+    // Called by buttons in menu
+    public void AddOperation(int index)
+    {
+        // if this operation is disabled, enable it
+        if (!operations[index])
+        {
+            operations[index] = true;
+        } else //disable the operation
+        {
+            operations[index] = false;
+
+        }
+    }
+
+    // called by start button
     public void StartGame(int operation)
     {
-        if (operation == 0)
-        {
-            additionOnly = true; // adding only
-            subtractionOnly = true;
-            multiplicationOnly = false;
-            divisionOnly = false;
+        //if (operation == 0)
+        //{
+        //    additionOnly = true; // adding only
+        //    subtractionOnly = false;
+        //    multiplicationOnly = false;
+        //    divisionOnly = false;
 
-        } else if (operation == 1)
-        {
-            additionOnly = false;
-            subtractionOnly = true; // subtracting only          
-            multiplicationOnly = false;
-            divisionOnly = false;
-        } else if (operation == 2)
-        {
-            additionOnly = false;
-            subtractionOnly = false;     
-            multiplicationOnly = true; // multiplication only
-            divisionOnly = false;
-        } else if (operation == 3)
-        {
-            additionOnly = false;
-            subtractionOnly = false;        
-            multiplicationOnly = false;
-            divisionOnly = true; // division only
-        } else
-        {
-            additionOnly = false;
-            subtractionOnly = false;       
-            multiplicationOnly = false;
-            divisionOnly = false;
-        }
+        //} else if (operation == 1)
+        //{
+        //    additionOnly = false;
+        //    subtractionOnly = true; // subtracting only          
+        //    multiplicationOnly = false;
+        //    divisionOnly = false;
+        //} else if (operation == 2)
+        //{
+        //    additionOnly = false;
+        //    subtractionOnly = false;     
+        //    multiplicationOnly = true; // multiplication only
+        //    divisionOnly = false;
+        //} else if (operation == 3)
+        //{
+        //    additionOnly = false;
+        //    subtractionOnly = false;        
+        //    multiplicationOnly = false;
+        //    divisionOnly = true; // division only
+        //} else
+        //{
+        //    additionOnly = false;
+        //    subtractionOnly = false;       
+        //    multiplicationOnly = false;
+        //    divisionOnly = false;
+        //}
 
         SceneManager.LoadScene(1);
     }
@@ -136,9 +168,56 @@ public class ProblemGenerator : MonoBehaviour
     public void CorrectAnswer()
     {
         problemText.text = numberList[0] + " " + operationString + " " + numberList[1] + " = " + solution;
-        // make animation showing the correct answer. then make it dissapear.
 
+        // check what operation was correctly solved and add one streak point to that.
+        if (randomOperation == 0)
+        {
+            additionStreak++;
+            if (additionStreak >= streaksToProgress)
+            {
+                additionStreak = 0;
+                additionLevel++;
+                Debug.Log(additionLevel);
+            }
+        } else if (randomOperation == 1)
+        {
+            subtractionStreak++;
+            if (subtractionStreak >= streaksToProgress)
+            {
+                subtractionStreak = 0;
+                subtractionLevel++;
+                Debug.Log(subtractionLevel);
 
+            }
+        } else if (randomOperation == 2)
+        {
+            multiplicationStreak++;
+            if (multiplicationStreak >= streaksToProgress)
+            {
+                multiplicationStreak = 0;
+                multiplicationLevel++;
+                Debug.Log(multiplicationLevel);
+
+            }
+        }
+        else if (randomOperation == 3)
+        {
+            divisionStreak++;
+            if (divisionStreak >= streaksToProgress)
+            {
+                divisionStreak = 0;
+                divisionLevel++;
+                Debug.Log(divisionLevel);
+
+            }
+        }
+
+        SaveLevels();
+    }
+
+    public void WrongAnswer()
+    {
+        // reset streak
     }
 
     void SaveLevels()
@@ -193,34 +272,41 @@ public class ProblemGenerator : MonoBehaviour
             {
                 maxOperation = 2;
             }
+
         }
 
-        int operation = Random.Range(0, maxOperation);
+        randomOperation = Random.Range(0, maxOperation);
+        
+        // Makes sure that only the chosen operations are selected randomly
+        while(!operations[randomOperation])
+        {
+            randomOperation = Random.Range(0, maxOperation);
+        }
 
-        // if the user chose a certain operation, override the random operation.
-        if (additionOnly)
-        {
-            operation = 0;
-        }
-        else if (subtractionOnly)
-        {
-            operation = 1;
-        }
-        else if (multiplicationOnly)
-        {
-            operation = 2;
-        }
-        else if (divisionOnly)
-        {
-            operation = 3;
-        }
+        //// if the user chose a certain operation, override the random operation.
+        //if (additionOnly)
+        //{
+        //    randomOperation = 0;
+        //}
+        //else if (subtractionOnly)
+        //{
+        //    randomOperation = 1;
+        //}
+        //else if (multiplicationOnly)
+        //{
+        //    randomOperation = 2;
+        //}
+        //else if (divisionOnly)
+        //{
+        //    randomOperation = 3;
+        //}
 
         // the range in randomness will differ depending on difficulty.
         float num1 = 0;
         float num2 = 0;
 
         //operation = 3;
-        if (operation == 0) // Addition
+        if (randomOperation == 0) // Addition
         {
             if (additionLevel > additionRangeOfNums.Length - 1)
             {
@@ -234,7 +320,7 @@ public class ProblemGenerator : MonoBehaviour
             operationString = "+";
             solution = num1 + num2;
         }
-        else if (operation == 1) // Subtraction
+        else if (randomOperation == 1) // Subtraction
         {
 
             if (subtractionLevel > subtractionRangeOfNums.Length - 1)
@@ -251,7 +337,7 @@ public class ProblemGenerator : MonoBehaviour
             operationString = "-";
             solution = num1 - num2;
         }
-        else if (operation == 2) // Multiplication
+        else if (randomOperation == 2) // Multiplication
         {
             if (multiplicationLevel > multiplicationRangeOfNums.Length - 1)
             {
@@ -264,7 +350,7 @@ public class ProblemGenerator : MonoBehaviour
             operationString = "×";
             solution = num1 * num2;
         }
-        else if (operation == 3) // Division
+        else if (randomOperation == 3) // Division
         {
 
             if (divisionLevel > divisionRangeOfNums.Length - 1)
