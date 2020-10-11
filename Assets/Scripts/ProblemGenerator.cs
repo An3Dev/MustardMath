@@ -6,6 +6,7 @@ using Random = UnityEngine.Random;
 using TMPro;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class ProblemGenerator : MonoBehaviour
 {
@@ -24,6 +25,11 @@ public class ProblemGenerator : MonoBehaviour
     bool giveNegativeSolutions = false;
     public static bool[] operations = new bool[] { true, true, true, true };
 
+    public Color greyBtnColor;
+    public Color[] buttonColors;
+    public GameObject startBtn;
+    public GameObject selectOperationsMessage;
+
     // the difficulty at which negative numbers appear
     int negativeNumLevel = 4;
 
@@ -37,6 +43,7 @@ public class ProblemGenerator : MonoBehaviour
     public int multiplyingAppearanceLevel = 8;
     public int dividingAppearanceLevel = 15;
 
+    public Image[] operationButtons;
     string levelsPrefsKey;
 
     // the 4 arrays below hold the max values that the student will be given depending on their level.
@@ -74,7 +81,37 @@ public class ProblemGenerator : MonoBehaviour
             levelText[1].text = "Level " + (subtractionLevel + 1);
             levelText[2].text = "Level " + (multiplicationLevel + 1);
             levelText[3].text = "Level " + (divisionLevel + 1);
-        }       
+        }
+
+        if (operationButtons == null || operationButtons.Length ==0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < operationButtons.Length; i++)
+        {
+            // if this operation is not selected
+            if (!operations[i])
+            {
+                operationButtons[i].color = greyBtnColor;
+            } else
+            {
+                operationButtons[i].color = buttonColors[i]; // give color to each button
+            }
+        }
+
+        foreach (bool operation in operations)
+        {
+            if (operation)
+            {
+                startBtn.SetActive(true);
+                selectOperationsMessage.SetActive(false);
+                return;
+            }
+        }
+        // disable the start button because no operations are selected
+        startBtn.SetActive(false);
+        selectOperationsMessage.SetActive(true);
     }
 
     void SetLevels()
@@ -89,25 +126,19 @@ public class ProblemGenerator : MonoBehaviour
             if (i == 0)
             {
                 additionLevel = int.Parse(array[i]);
-                Debug.Log("Level: " + additionLevel);
             }
             else if (i == 1)
             {
                 subtractionLevel = int.Parse(array[i]);
-                Debug.Log("Level: " + subtractionLevel);
 
             }
             else if (i == 2)
             {
                 multiplicationLevel = int.Parse(array[i]);
-                Debug.Log("Level: " + multiplicationLevel);
-
             }
             else if (i == 3)
             {
                 divisionLevel = int.Parse(array[i]);
-                Debug.Log("Level: " + divisionLevel);
-
             }
         }
     }
@@ -119,11 +150,28 @@ public class ProblemGenerator : MonoBehaviour
         if (!operations[index])
         {
             operations[index] = true;
+            operationButtons[index].color = buttonColors[index];
         } else //disable the operation
         {
             operations[index] = false;
+            operationButtons[index].color = greyBtnColor;
 
         }
+
+        foreach(bool operation in operations)
+        {
+            if (operation)
+            {
+                startBtn.SetActive(true);
+                selectOperationsMessage.SetActive(false);
+
+                return;
+            }
+        }
+        // disable the start button because no operations are selected
+        startBtn.SetActive(false);
+        selectOperationsMessage.SetActive(true);
+
     }
 
     // called by start button

@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -25696,10 +25696,15 @@ MonoBehaviour:
   - {fileID: 1110162380}
   - {fileID: 1986438935}
   - {fileID: 2093094108}
+  greyBtnColor: {r: 0, g: 0, b: 0, a: 0}
+  buttonColors: []
+  startBtn: {fileID: 0}
+  selectOperationsMessage: {fileID: 0}
   autoProgression: 1
   subtractingAppearanceLevel: 3
   multiplyingAppearanceLevel: 7
   dividingAppearanceLevel: 15
+  operationButtons: []
   solutionTransform: {fileID: 1499489339}
 --- !u!4 &1331715112
 Transform:
@@ -25733,7 +25738,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!50 &1448967006
 Rigidbody2D:
   serializedVersion: 4
