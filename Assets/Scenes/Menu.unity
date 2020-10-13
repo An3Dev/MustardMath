@@ -2761,7 +2761,7 @@ MonoBehaviour:
   - {fileID: 501508335}
   levels: 
   possibleSolutionsText: []
-  greyBtnColor: {r: 0.5377358, g: 0.5377358, b: 0.5377358, a: 1}
+  greyBtnColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
   buttonColors:
   - {r: 1, g: 0.07058824, b: 0, a: 1}
   - {r: 0.3254902, g: 0.77647066, b: 1, a: 1}

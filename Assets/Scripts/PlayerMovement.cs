@@ -54,7 +54,8 @@ public class PlayerMovement : MonoBehaviour
     bool gameOver = false;
 
     float lastMoveTime = 0;
-    
+
+    bool turningOffWall = false;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -71,6 +72,12 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
+        if (Input.GetKeyDown(KeyCode.M) || Input.GetKeyDown(KeyCode.Menu))
+        {
+            SceneManager.LoadScene(0);
+        }
+
         // if player passed the fueling station
         if (transform.position.y > fuelingStation.transform.position.y - fuelOffCameraOffset)
         {
@@ -78,11 +85,11 @@ public class PlayerMovement : MonoBehaviour
             MoveFuelStation();
         }
 
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) && !turningOffWall)
         {
             targetDir = -1;
         }
-        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) && !turningOffWall)
         {
             targetDir = 1;
         } else
@@ -104,9 +111,9 @@ public class PlayerMovement : MonoBehaviour
 
         if (fuelUsed >= maxFuel && !gameOver)
         {
-            Debug.Log("No fuel");
             gameOver = true;
             canvasAnimator.SetTrigger("GameOver");
+            exhaust.gameObject.SetActive(false);
             //SceneManager.LoadScene(0);
             // show stats
         }
@@ -161,31 +168,33 @@ public class PlayerMovement : MonoBehaviour
                 if (tries == 0)
                 {
                     fuelUsed -= maxFuel / 2;
-                } else if (tries == 1)
+                    problemGenerator.AddToStreak();
+
+                }
+                else if (tries == 1)
                 {
                     fuelUsed -= maxFuel / 3;
-                    // don't spawn powerup
-                } else if (tries == 2)
+                    problemGenerator.AddLosingStreak();
+
+                }
+                else if (tries == 2)
                 {
                     fuelUsed -= maxFuel / 4;
                     // reset streak.
-                    problemGenerator.WrongAnswer();
+                    problemGenerator.AddLosingStreak();
+                }
+                else
+                {
+                    problemGenerator.AddLosingStreak();
 
-                    // don't spawn powerup
                 }
 
-                if(fuelUsed < 0)
+                if (fuelUsed < 0)
                 {
                     fuelUsed = 0;
                 }
 
                 tries = 0;
-
-                Debug.Log("Correct, give gas");
-
-                //MoveFuelStation();
-
-                // spawn power up 
 
                 // show particle system.
                 correctAnswerPS.transform.position = collision.transform.position;
@@ -203,20 +212,14 @@ public class PlayerMovement : MonoBehaviour
 
                 // obstacles. fuel position.y - 20
 
-                problemGenerator.CorrectAnswer();
+                problemGenerator.UpdateText();
+
             } else
             {
-                Debug.Log("Incorrect");
-
                 incorrectAnswerPS.transform.position = collision.transform.position;
                 incorrectAnswerPS.Play();
 
                 collision.transform.GetComponent<Animator>().SetTrigger("Wrong");
-
-                //StartCoroutine(FadeImage(true, collision.transform.GetComponent<SpriteRenderer>(), false, false));
-                //StartCoroutine(FadeImage(true, collision.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>(), false, false));
-
-                // fade away wrong fuel tank
 
                 // disable collider
                 collision.transform.GetComponent<Collider2D>().enabled = false;
@@ -245,9 +248,33 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void OnCollisionStay(Collision collision)
+    {
+        if (collision.collider.CompareTag("Barrier"))
+        {
+            // add force in opposite direction
+            MoveRocket(collision.GetContact(0).point);
+
+        }
+        else if (collision.collider.CompareTag("Obstacle"))
+        {
+            Debug.Log("Obstacle");
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("Barrier"))
+        {
+            // add force in opposite direction
+            turningOffWall = false;
+
+        }
+    }
     // moves the rocket away from wall
     void MoveRocket(Vector3 collisionPoint)
     {
+        turningOffWall = true;
         int xDir = 0;
         if (collisionPoint.x < transform.position.x)
         {
@@ -262,87 +289,8 @@ public class PlayerMovement : MonoBehaviour
 
         Vector2 dir = new Vector2(xDir, 0.5f);
         rb.AddForce(dir * wallForce, ForceMode2D.Impulse);
-        rb.AddTorque(-xDir * 360);
-        Debug.Log(xDir);
+        rb.AddTorque(-xDir * 90);
     }
-
-    //IEnumerator FadeImage(bool fadeAway, SpriteRenderer renderer, bool isCorrectAnswer, bool moveFuel)
-    //{
-    //    // fade from opaque to transparent
-    //    if (fadeAway)
-    //    {
-    //        //float fadeTime = isCorrectAnswer ? correctFuelDissolveTime : incorrectFuelDissolveTime;
-    //        if (moveFuel)
-    //        {
-    //            renderer.gameObject.GetComponent<BoxCollider2D>().enabled = false;
-    //            renderer.color = fuelTankColor;
-    //        }
-
-    //        // loop over 1 second backwards
-    //        for (float i = fadeTime; i >= 0; i -= Time.deltaTime)
-    //        {
-    //            // set color with i as alpha
-    //            renderer.color = new Color(fuelTankColor.r, fuelTankColor.g, fuelTankColor.b, i);
-    //            if (i <= 0.01f)
-    //            {
-    //                if (moveFuel)
-    //                {
-    //                    Debug.Log(renderer.transform + " Faded away");
-
-    //                    MoveFuelStation();
-    //                }
-
-    //            }
-    //            yield return null;
-    //        }
-    //    }
-    //    // fade from transparent to opaque
-    //    //else
-    //    //{
-    //    //    // loop over 1 second
-    //    //    for (float i = 0; i <= 1; i += Time.deltaTime)
-    //    //    {
-    //    //        // set color with i as alpha
-    //    //        renderer.color = new Color(1, 1, 1, i);
-    //    //        yield return null;
-    //    //    }
-    //    //}
-    //}
-
-    //IEnumerator FadeImage(bool fadeAway, TextMeshProUGUI text, bool isCorrectAnswer, bool moveFuel)
-    //{
-    //    // fade from opaque to transparent
-    //    if (fadeAway)
-    //    {
-    //        float fadeTime = isCorrectAnswer ? correctFuelDissolveTime : incorrectFuelDissolveTime;
-    //        // loop over 1 second backwards
-    //        for (float i = fadeTime; i >= 0; i -= Time.deltaTime)
-    //        {
-    //            // set color with i as alpha
-    //            text.color = new Color(text.color.r, text.color.g, text.color.b, i);
-    //            if (i <= 0.01f)
-    //            {
-    //                // if image faded away, move the fuel
-    //                if (!isCorrectAnswer && moveFuel)
-    //                {
-    //                    MoveFuelStation();
-    //                }
-    //            }
-    //            yield return null;
-    //        }
-    //    }
-    //    // fade from transparent to opaque
-    //    else
-    //    {
-    //        // loop over 1 second
-    //        for (float i = 0; i <= 1; i += Time.deltaTime)
-    //        {
-    //            // set color with i as alpha
-    //            text.color = new Color(1, 1, 1, i);
-    //            yield return null;
-    //        }
-    //    }
-    //}
 
     public void MoveFuelStation()
     {
@@ -367,28 +315,13 @@ public class PlayerMovement : MonoBehaviour
 
         fuelTankAnimator4.SetTrigger("Reset");
 
-        // enable all of the fueling tanks.
-
-        //fuelingTankRenderer1.color = fuelTankColor;
-        //fuelingTankRenderer2.color = fuelTankColor;
-        //fuelingTankRenderer3.color = fuelTankColor;
-        //fuelingTankRenderer4.color = fuelTankColor;
-
-        //tankTextMesh1.color = new Color(255, 255, 255, 1);
-        //tankTextMesh2.color = new Color(255, 255, 255, 1);
-        //tankTextMesh3.color = new Color(255, 255, 255, 1);
-        //tankTextMesh4.color = new Color(255, 255, 255, 1);
+        // enable all of the fueling tanks
 
         for (int i = 0; i < fuelingStation.transform.childCount; i++)
         {
             fuelingStation.transform.GetChild(i).gameObject.SetActive(true);
 
-            //SpriteRenderer renderer = fuelingStation.transform.GetChild(i).GetComponent<SpriteRenderer>();
-            //renderer.color = new Color(renderer.color.r, renderer.color.g, renderer.color.b, 1);
-
-            //fuelingStation.transform.GetChild(i).GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().color = new Color(1, 1, 1, 1);
             fuelingStation.transform.GetChild(i).gameObject.GetComponent<BoxCollider2D>().enabled = true;
-
         }
     }
 }

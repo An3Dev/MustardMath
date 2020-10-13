@@ -7,15 +7,15 @@ using TMPro;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Linq;
 
 public class ProblemGenerator : MonoBehaviour
 {
     public TextMeshProUGUI problemText;
-    public static int additionLevel = 0, subtractionLevel = 0, multiplicationLevel = 0, divisionLevel = 0; // 0 is the easiest level.
 
     public TextMeshProUGUI[] levelText;
 
-    public List<int> levels;
+    public static int[] levels;
     public TextMeshProUGUI[] possibleSolutionsText;
 
     List<float> numberList = new List<float>();
@@ -30,18 +30,9 @@ public class ProblemGenerator : MonoBehaviour
     public GameObject startBtn;
     public GameObject selectOperationsMessage;
 
-    // the difficulty at which negative numbers appear
-    int negativeNumLevel = 4;
+    int[] winningStreaks = new int[] { 0, 0, 0, 0 };
+    int[] losingStreaks = new int[] { 0, 0, 0, 0 };
 
-    public bool autoProgression = true;
-
-    public static bool additionOnly, subtractionOnly, multiplicationOnly, divisionOnly;
-    int additionStreak, subtractionStreak, multiplicationStreak, divisionStreak;
-
-    // level at which subtracting problems appear
-    public int subtractingAppearanceLevel = 3;
-    public int multiplyingAppearanceLevel = 8;
-    public int dividingAppearanceLevel = 15;
 
     public Image[] operationButtons;
     string levelsPrefsKey;
@@ -60,30 +51,29 @@ public class ProblemGenerator : MonoBehaviour
     int[] minDivisionNums = new int[] { 0, 1, 2, 3, 5, 5};
     public Transform solutionTransform;
 
-    const String additionStreakKey = "AdditionStreak", subtractionStreakKey = "SubtractionStreak", multiplicationStreakKey = "MultiplicationStreak", divisionStreakKey = "DivisionStreak";
+    String streakKey = "StreakKey";
+    String losingStreakKey = "LosingStreakKey";
+
 
     int randomOperation = -1;
-    int streaksToProgress = 3;
+    int streaksToProgress = 2;
+    int losingStreaksToDemote = 2;
 
     private void Start()
     {
-        SetLevels();
-
-        // get streak data
-        additionStreak = PlayerPrefs.GetInt(additionStreakKey, 0);
-        subtractionStreak = PlayerPrefs.GetInt(subtractionStreakKey, 0);
-        multiplicationStreak = PlayerPrefs.GetInt(multiplicationStreakKey, 0);
-        divisionStreak = PlayerPrefs.GetInt(divisionStreakKey, 0);
+        levels = GetArrayFromPrefs(levelsPrefsKey);
+        winningStreaks = GetArrayFromPrefs(streakKey);
+        losingStreaks = GetArrayFromPrefs(losingStreakKey);
 
         if (SceneManager.GetActiveScene().buildIndex == 0)
         {
-            levelText[0].text = "Level " + (additionLevel + 1);
-            levelText[1].text = "Level " + (subtractionLevel + 1);
-            levelText[2].text = "Level " + (multiplicationLevel + 1);
-            levelText[3].text = "Level " + (divisionLevel + 1);
+           for(int i = 0; i < levels.Length; i++)
+            {
+                levelText[i].text = "Level " + (levels[i] + 1);
+            }
         }
 
-        if (operationButtons == null || operationButtons.Length ==0)
+        if (operationButtons == null || operationButtons.Length == 0)
         {
             return;
         }
@@ -114,34 +104,50 @@ public class ProblemGenerator : MonoBehaviour
         selectOperationsMessage.SetActive(true);
     }
 
-    void SetLevels()
+    #region data storage
+
+    //Formats array from array to string to be stored as string in Player Prefs.
+    void SaveArrayAsPref(string key, int[] array)
     {
-        // Get data about levels
-        string levelsData = PlayerPrefs.GetString(levelsPrefsKey, "0,0,0,0");
+        string thisString = "";
 
-        string[] array = levelsData.Split(',');
-
+        //separates
         for (int i = 0; i < array.Length; i++)
         {
             if (i == 0)
             {
-                additionLevel = int.Parse(array[i]);
+                thisString += array[i].ToString();
             }
-            else if (i == 1)
+            else
             {
-                subtractionLevel = int.Parse(array[i]);
+                thisString += "," + array[i].ToString();
+            }
 
-            }
-            else if (i == 2)
-            {
-                multiplicationLevel = int.Parse(array[i]);
-            }
-            else if (i == 3)
-            {
-                divisionLevel = int.Parse(array[i]);
-            }
         }
+
+        print(key + " " + thisString);
+        PlayerPrefs.SetString(key, thisString);
     }
+
+    // Gets string data that was formatted by GetArrayFromPrefs method and stored in player prefs. Reformats it to an array.
+    int[] GetArrayFromPrefs(string key)
+    {
+        // Get data
+        string data = PlayerPrefs.GetString(key, "0,0,0,0");
+
+        string[] array = data.Split(',');
+
+        int[] intArray = new int[4];
+
+        for (int i = 0; i < array.Length; i++)
+        {
+            intArray[i] = int.Parse(array[i]);
+        }
+
+        return intArray;
+    }
+
+#endregion data storage
 
     // Called by buttons in menu
     public void AddOperation(int index)
@@ -155,7 +161,6 @@ public class ProblemGenerator : MonoBehaviour
         {
             operations[index] = false;
             operationButtons[index].color = greyBtnColor;
-
         }
 
         foreach(bool operation in operations)
@@ -171,183 +176,78 @@ public class ProblemGenerator : MonoBehaviour
         // disable the start button because no operations are selected
         startBtn.SetActive(false);
         selectOperationsMessage.SetActive(true);
-
     }
 
     // called by start button
     public void StartGame(int operation)
     {
-        //if (operation == 0)
-        //{
-        //    additionOnly = true; // adding only
-        //    subtractionOnly = false;
-        //    multiplicationOnly = false;
-        //    divisionOnly = false;
-
-        //} else if (operation == 1)
-        //{
-        //    additionOnly = false;
-        //    subtractionOnly = true; // subtracting only          
-        //    multiplicationOnly = false;
-        //    divisionOnly = false;
-        //} else if (operation == 2)
-        //{
-        //    additionOnly = false;
-        //    subtractionOnly = false;     
-        //    multiplicationOnly = true; // multiplication only
-        //    divisionOnly = false;
-        //} else if (operation == 3)
-        //{
-        //    additionOnly = false;
-        //    subtractionOnly = false;        
-        //    multiplicationOnly = false;
-        //    divisionOnly = true; // division only
-        //} else
-        //{
-        //    additionOnly = false;
-        //    subtractionOnly = false;       
-        //    multiplicationOnly = false;
-        //    divisionOnly = false;
-        //}
-
         SceneManager.LoadScene(1);
     }
 
-    public void CorrectAnswer()
+    public void UpdateText()
     {
         problemText.text = numberList[0] + " " + operationString + " " + numberList[1] + " = " + solution;
-
-        // check what operation was correctly solved and add one streak point to that.
-        if (randomOperation == 0)
-        {
-            additionStreak++;
-            if (additionStreak >= streaksToProgress)
-            {
-                additionStreak = 0;
-                additionLevel++;
-                Debug.Log(additionLevel);
-            }
-        } else if (randomOperation == 1)
-        {
-            subtractionStreak++;
-            if (subtractionStreak >= streaksToProgress)
-            {
-                subtractionStreak = 0;
-                subtractionLevel++;
-                Debug.Log(subtractionLevel);
-
-            }
-        } else if (randomOperation == 2)
-        {
-            multiplicationStreak++;
-            if (multiplicationStreak >= streaksToProgress)
-            {
-                multiplicationStreak = 0;
-                multiplicationLevel++;
-                Debug.Log(multiplicationLevel);
-
-            }
-        }
-        else if (randomOperation == 3)
-        {
-            divisionStreak++;
-            if (divisionStreak >= streaksToProgress)
-            {
-                divisionStreak = 0;
-                divisionLevel++;
-                Debug.Log(divisionLevel);
-
-            }
-        }
-
-        SaveLevels();
     }
 
-    public void WrongAnswer()
+    public void AddToStreak()
     {
-        // reset streak
-    }
+        winningStreaks[randomOperation]++;
+        losingStreaks[randomOperation] = 0;
 
-    void SaveLevels()
-    {
-        string levels = "";
-
-        for (int i = 0; i < 4; i++)
+        if(winningStreaks[randomOperation] >= streaksToProgress)
         {
-            if (i == 0)
-            {
-                levels += additionLevel.ToString();
-            }
-            else if (i == 1)
-            {
-                levels += "," + subtractionLevel.ToString();
-            }
-            else if (i == 2)
-            {
-                levels += "," + multiplicationLevel.ToString();
-            }
-            else if (i == 3)
-            {
-                levels += "," + divisionLevel.ToString();
-            }
-
+            winningStreaks[randomOperation] = 0;
+            levels[randomOperation]++;
+            Debug.Log(levels[randomOperation]);
         }
 
-        PlayerPrefs.SetString(levelsPrefsKey, levels);
+        SaveArrayAsPref(streakKey, winningStreaks);
+        SaveArrayAsPref(levelsPrefsKey, levels);
+        SaveArrayAsPref(losingStreakKey, losingStreaks);
+
+        //SaveLevels();
     }
 
+    // adds to the streak of losses to the current operation
+    public void AddLosingStreak()
+    {
+        // adds streak
+        losingStreaks[randomOperation]++;
+        // resets the winning streak
+        winningStreaks[randomOperation] = 0;
+
+        // checks if losing streaks meets demotion requirements
+        if (losingStreaks[randomOperation] >= losingStreaksToDemote)
+        {
+            losingStreaks[randomOperation] = 0;
+            if (levels[randomOperation] > 0)
+            {
+                // demote levels
+                levels[randomOperation]--;
+                Debug.Log(levels[randomOperation]);
+
+            }
+        }
+
+        SaveArrayAsPref(levelsPrefsKey, levels);
+        SaveArrayAsPref(streakKey, winningStreaks);
+        SaveArrayAsPref(losingStreakKey, losingStreaks);
+    }
+
+   
     public void GenerateProblem()
     {
 
         numberList.Clear();
         // generate a problem with random numbers
 
-        // add a random number to numberList
-
-        int maxOperation = 1;
-
-        if (autoProgression)
-        {
-            if (divisionLevel > -1)
-            {
-                maxOperation = 4;
-            }
-            else if (multiplicationLevel > -1)
-            {
-                maxOperation = 3;
-            }
-            else if (subtractionLevel > -1)
-            {
-                maxOperation = 2;
-            }
-
-        }
-
-        randomOperation = Random.Range(0, maxOperation);
+        randomOperation = Random.Range(0, 4);
         
         // Makes sure that only the chosen operations are selected randomly
         while(!operations[randomOperation])
         {
-            randomOperation = Random.Range(0, maxOperation);
+            randomOperation = Random.Range(0, 4);
         }
-
-        //// if the user chose a certain operation, override the random operation.
-        //if (additionOnly)
-        //{
-        //    randomOperation = 0;
-        //}
-        //else if (subtractionOnly)
-        //{
-        //    randomOperation = 1;
-        //}
-        //else if (multiplicationOnly)
-        //{
-        //    randomOperation = 2;
-        //}
-        //else if (divisionOnly)
-        //{
-        //    randomOperation = 3;
-        //}
 
         // the range in randomness will differ depending on difficulty.
         float num1 = 0;
@@ -356,14 +256,14 @@ public class ProblemGenerator : MonoBehaviour
         //operation = 3;
         if (randomOperation == 0) // Addition
         {
-            if (additionLevel > additionRangeOfNums.Length - 1)
+            if (levels[0] > additionRangeOfNums.Length - 1)
             {
-                additionLevel = additionRangeOfNums.Length - 1;
+                levels[0] = additionRangeOfNums.Length - 1;
             }
 
             //int tempLevel = level >= addingRangeOfNums.Length ? addingRangeOfNums.Length - 1 : level;
-            num1 = (int)Random.Range(minAdditionNums[additionLevel], additionRangeOfNums[additionLevel] + 1);
-            num2 = (int)Random.Range(minAdditionNums[additionLevel], additionRangeOfNums[additionLevel] + 1);
+            num1 = (int)Random.Range(minAdditionNums[levels[0]], additionRangeOfNums[levels[0]] + 1);
+            num2 = (int)Random.Range(minAdditionNums[levels[0]], additionRangeOfNums[levels[0]] + 1);
 
             operationString = "+";
             solution = num1 + num2;
@@ -371,29 +271,29 @@ public class ProblemGenerator : MonoBehaviour
         else if (randomOperation == 1) // Subtraction
         {
 
-            if (subtractionLevel > subtractionRangeOfNums.Length - 1)
+            if (levels[1] > subtractionRangeOfNums.Length - 1)
             {
-                subtractionLevel = subtractionRangeOfNums.Length - 1;
+                levels[1] = subtractionRangeOfNums.Length - 1;
             }
             //int tempLevel = level - subtractingAppearanceLevel >= subtractingRangeOfNums.Length ? subtractingRangeOfNums.Length - 1 : level - subtractingAppearanceLevel;
             // make this number have a minimum of 1 if we don't want negatives.
-            num1 = Random.Range(!giveNegativeSolutions ? 1 : minSubtractionNums[subtractionLevel], subtractionRangeOfNums[subtractionLevel] + 1);
+            num1 = Random.Range(!giveNegativeSolutions ? 1 : minSubtractionNums[levels[1]], subtractionRangeOfNums[levels[1]] + 1);
 
             // if we're not giving negative nums, this number has to be less than or equal to num1
-            num2 = (int)Random.Range(minSubtractionNums[subtractionLevel], !giveNegativeSolutions ? num1 : subtractionRangeOfNums[subtractionLevel] + 1);
+            num2 = (int)Random.Range(minSubtractionNums[levels[1]], !giveNegativeSolutions ? num1 : subtractionRangeOfNums[levels[1]] + 1);
 
             operationString = "-";
             solution = num1 - num2;
         }
         else if (randomOperation == 2) // Multiplication
         {
-            if (multiplicationLevel > multiplicationRangeOfNums.Length - 1)
+            if (levels[2] > multiplicationRangeOfNums.Length - 1)
             {
-                multiplicationLevel = multiplicationRangeOfNums.Length - 1;
+                levels[2] = multiplicationRangeOfNums.Length - 1;
             }
             //int tempLevel = level - multiplyingAppearanceLevel >= multiplyingRangeOfNums.Length ? multiplyingRangeOfNums.Length - 1 : level - multiplyingAppearanceLevel;
-            num1 = (int)Random.Range(minMultiplicationNums[multiplicationLevel], multiplicationRangeOfNums[multiplicationLevel] + 1);
-            num2 = (int)Random.Range(minMultiplicationNums[multiplicationLevel], multiplicationRangeOfNums[multiplicationLevel] + 1);
+            num1 = (int)Random.Range(minMultiplicationNums[levels[2]], multiplicationRangeOfNums[levels[2]] + 1);
+            num2 = (int)Random.Range(minMultiplicationNums[levels[2]], multiplicationRangeOfNums[levels[2]] + 1);
 
             operationString = "×";
             solution = num1 * num2;
@@ -401,15 +301,15 @@ public class ProblemGenerator : MonoBehaviour
         else if (randomOperation == 3) // Division
         {
 
-            if (divisionLevel > divisionRangeOfNums.Length - 1)
+            if (levels[3] > divisionRangeOfNums.Length - 1)
             {
-                divisionLevel = divisionRangeOfNums.Length - 1;
+                levels[3] = divisionRangeOfNums.Length - 1;
             }
             //int tempLevel = level - dividingAppearanceLevel >= dividingRangeOfNums.Length ? dividingRangeOfNums.Length - 1: level - dividingAppearanceLevel;
 
             operationString = "÷";
-            num1 = (int)Random.Range(minDivisionNums[divisionLevel], divisionRangeOfNums[divisionLevel] + 1);
-            num2 = (int)Random.Range(minDivisionNums[divisionLevel] + 1, Mathf.Ceil(divisionRangeOfNums[divisionLevel] / 2 + 1));
+            num1 = (int)Random.Range(minDivisionNums[levels[3]], divisionRangeOfNums[levels[3]] + 1);
+            num2 = (int)Random.Range(minDivisionNums[levels[3]] + 1, Mathf.Ceil(divisionRangeOfNums[levels[3]] / 2 + 1));
 
             // make num1 a multiple of num2 so it can be cleanly divided
             num1 *= num2;
