@@ -22,6 +22,9 @@ public class PlayerMovement : MonoBehaviour
     public SpriteRenderer fuelingTankRenderer1, fuelingTankRenderer2, fuelingTankRenderer3, fuelingTankRenderer4;
     //public TextMeshProUGUI tankTextMesh1, tankTextMesh2, tankTextMesh3, tankTextMesh4;
     public Animator fuelTankAnimator1, fuelTankAnimator2, fuelTankAnimator3, fuelTankAnimator4;
+    public GameObject collectablePrefab;
+    public float numberOfObjects;
+    public Transform floatingObjectParent;
 
     public float wallForce = 2500;
 
@@ -67,6 +70,8 @@ public class PlayerMovement : MonoBehaviour
     {
         cameraOffset = cam.position - transform.position;
         fuelTankColor = fuelingTankRenderer1.color;
+
+        SpawnObstacles(fuelingStation.transform.position.y);
     }
 
     // Update is called once per frame
@@ -315,6 +320,8 @@ public class PlayerMovement : MonoBehaviour
 
         fuelTankAnimator4.SetTrigger("Reset");
 
+        SpawnObstacles(fuelingStation.transform.position.y);
+
         // enable all of the fueling tanks
 
         for (int i = 0; i < fuelingStation.transform.childCount; i++)
@@ -323,5 +330,36 @@ public class PlayerMovement : MonoBehaviour
 
             fuelingStation.transform.GetChild(i).gameObject.GetComponent<BoxCollider2D>().enabled = true;
         }
+    }
+
+    void SpawnObstacles(float fuelingStationPos)
+    {
+        fuelingStationPos -= 5;
+
+        if (floatingObjectParent.childCount == 0)
+        {
+            for (int i = 0; i < numberOfObjects; i++)
+            {
+                float xPos = Random.Range(-8.5f, 8.5f);
+                float yPos = fuelingStationPos - distanceBetweenAnswers + i * (distanceBetweenAnswers / numberOfObjects);
+                Instantiate(collectablePrefab, new Vector3(xPos, yPos), Quaternion.identity, floatingObjectParent);
+                if (i == numberOfObjects / 2)
+                {
+                    fuelingStationPos += distanceBetweenAnswers;
+                }
+            }
+            return;
+        }
+        else
+        {
+            for (int i = 0; i < numberOfObjects; i++)
+            {
+                float xPos = Random.Range(-8.5f, 8.5f);
+                float yPos = fuelingStationPos - distanceBetweenAnswers + i * (distanceBetweenAnswers / numberOfObjects);
+                floatingObjectParent.GetChild(floatingObjectParent.childCount - 1 - i).position = new Vector3(xPos, yPos, -3);
+                floatingObjectParent.GetChild(i).SetSiblingIndex(0);
+            } 
+        }
+        
     }
 }
