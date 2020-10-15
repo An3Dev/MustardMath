@@ -22,7 +22,9 @@ public class PlayerMovement : MonoBehaviour
     public SpriteRenderer fuelingTankRenderer1, fuelingTankRenderer2, fuelingTankRenderer3, fuelingTankRenderer4;
     //public TextMeshProUGUI tankTextMesh1, tankTextMesh2, tankTextMesh3, tankTextMesh4;
     public Animator fuelTankAnimator1, fuelTankAnimator2, fuelTankAnimator3, fuelTankAnimator4;
-    public GameObject collectablePrefab;
+    public GameObject spawnedObjectPrefab;
+    public float collectableProbability = 0.4f;
+    public float obstacleProbability = 0.4f;
     public float numberOfObjects;
     public Transform floatingObjectParent;
 
@@ -31,6 +33,8 @@ public class PlayerMovement : MonoBehaviour
     public float distanceBetweenAnswers = 50;
 
     public float fuelPerSecond = 2;
+
+    public AudioSource audioSource;
 
     //public float correctFuelDissolveTime = 1f;
     //public float incorrectFuelDissolveTime = 0.5f;
@@ -59,6 +63,14 @@ public class PlayerMovement : MonoBehaviour
     float lastMoveTime = 0;
 
     bool turningOffWall = false;
+
+    float trashCollectionFuelReward = 5;
+
+    public ParticleSystem exhaustOne, exhaustTwo;
+
+    public AudioClip collectGasSoundEffect;
+    public AudioSource soundEffectsAudioSource;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -106,6 +118,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Time.timeScale = 1;
+            audioSource.pitch = 1;
             cancelSlowMo = true;
         }
 
@@ -117,16 +130,21 @@ public class PlayerMovement : MonoBehaviour
         if (fuelUsed >= maxFuel && !gameOver)
         {
             gameOver = true;
+            audioSource.Stop();
             canvasAnimator.SetTrigger("GameOver");
             exhaust.gameObject.SetActive(false);
-            //SceneManager.LoadScene(0);
+            exhaustOne.Stop();
+            exhaustTwo.Stop();
+            
             // show stats
         }
 
         // if rocket is close enough to the fueling station, slow down time to give use time to think.
         if (!cancelSlowMo && (transform.position - fuelingStation.transform.position).sqrMagnitude < slowMotionProximity * slowMotionProximity)
         {
-            Time.timeScale = 0.4f;
+            Time.timeScale = 0.5f;
+            audioSource.pitch = 0.5f;
+
         }
 
         fuelUsed += fuelPerSecond * Time.deltaTime;
@@ -155,9 +173,15 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
+    void CollectedTrash()
+    {
+        fuelUsed -= trashCollectionFuelReward;
+        soundEffectsAudioSource.PlayOneShot(collectGasSoundEffect);
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // detect if hit a fueling tank
+        // detect if is in area to show problem
         if (collision.gameObject.layer == LayerMask.NameToLayer("FuelingArea"))
         {
             // Generate problem
@@ -167,6 +191,10 @@ public class PlayerMovement : MonoBehaviour
         
         if (collision.gameObject.layer == LayerMask.NameToLayer("FuelingStation"))
         {
+
+            Time.timeScale = 1;
+            audioSource.pitch = 1;
+
             // If player got answer right
             if (problemGenerator.solutionTransform == collision.transform)
             {
@@ -191,7 +219,6 @@ public class PlayerMovement : MonoBehaviour
                 else
                 {
                     problemGenerator.AddLosingStreak();
-
                 }
 
                 if (fuelUsed < 0)
@@ -206,18 +233,20 @@ public class PlayerMovement : MonoBehaviour
                 correctAnswerPS.Play();
 
                 // fade away images of all fuel tanks.
-                fuelTankAnimator1.SetTrigger("Fade");
-                fuelTankAnimator2.SetTrigger("Fade");
-                fuelTankAnimator3.SetTrigger("Fade");
-                fuelTankAnimator4.SetTrigger("Fade");
+                
+                fuelTankAnimator1.SetTrigger(fuelTankAnimator1.transform == collision.transform ? "Fade" : "SimpleFade");
+                fuelTankAnimator2.SetTrigger(fuelTankAnimator2.transform == collision.transform ? "Fade" : "SimpleFade");
+                fuelTankAnimator3.SetTrigger(fuelTankAnimator3.transform == collision.transform ? "Fade" : "SimpleFade");
+                fuelTankAnimator4.SetTrigger(fuelTankAnimator4.transform == collision.transform ? "Fade" : "SimpleFade");
 
 
+                soundEffectsAudioSource.PlayOneShot(collectGasSoundEffect);
                 // show correct equation for a few seconds, then dissolve it.
 
 
                 // obstacles. fuel position.y - 20
 
-                problemGenerator.UpdateText();
+                problemGenerator.PlayCorrectAnswerAnimation();
 
             } else
             {
@@ -225,6 +254,7 @@ public class PlayerMovement : MonoBehaviour
                 incorrectAnswerPS.Play();
 
                 collision.transform.GetComponent<Animator>().SetTrigger("Wrong");
+                problemGenerator.PlayWrongAnswerAnimation();
 
                 // disable collider
                 collision.transform.GetComponent<Collider2D>().enabled = false;
@@ -236,9 +266,10 @@ public class PlayerMovement : MonoBehaviour
                 // if incorrect, the chosen fuel container will dissapear and the player can choose again.
                 // The player will get less fuel for getting an answer right the second try.
             }
-
         }
     }
+
+
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -299,10 +330,11 @@ public class PlayerMovement : MonoBehaviour
 
     public void MoveFuelStation()
     {
-        if (Time.timeSinceLevelLoad - lastMoveTime < 0.5f)
+        if (Time.timeSinceLevelLoad - lastMoveTime < 1f)
         {
             return;
         }
+        Debug.Log("Move fuel station");
 
         lastMoveTime = Time.timeSinceLevelLoad;
         // move fueling station to next location
@@ -311,6 +343,8 @@ public class PlayerMovement : MonoBehaviour
 
         // make time back to normal
         Time.timeScale = 1;
+        audioSource.pitch = 1;
+
         cancelSlowMo = false;
 
         fuelTankAnimator1.SetTrigger("Reset");
@@ -323,6 +357,7 @@ public class PlayerMovement : MonoBehaviour
         SpawnObstacles(fuelingStation.transform.position.y);
 
         // enable all of the fueling tanks
+        problemGenerator.FadeOutText();
 
         for (int i = 0; i < fuelingStation.transform.childCount; i++)
         {
@@ -332,34 +367,117 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+
+    #region object spawner
+
+    Vector3 CalculatePosition(float fuelingStationPos, int i)
+    {
+        return new Vector3(Random.Range(-8.5f, 8.5f), fuelingStationPos - distanceBetweenAnswers + 5 + i * ((distanceBetweenAnswers - 10) / numberOfObjects), 3);
+    }
+
+    int GetRandomObject()
+    {
+        float prob = Random.Range(0, 100) / 100.0f;
+        int spawnedObject = 2;
+        if (prob <= collectableProbability)
+        {
+            spawnedObject = 0;
+        }
+        else if (prob > collectableProbability && prob <= (obstacleProbability + collectableProbability))
+        {
+            spawnedObject = 1;
+        } else
+        {
+            spawnedObject = 2;
+        }
+        return spawnedObject;
+    }
+
     void SpawnObstacles(float fuelingStationPos)
     {
-        fuelingStationPos -= 5;
-
         if (floatingObjectParent.childCount == 0)
         {
             for (int i = 0; i < numberOfObjects; i++)
             {
-                float xPos = Random.Range(-8.5f, 8.5f);
-                float yPos = fuelingStationPos - distanceBetweenAnswers + i * (distanceBetweenAnswers / numberOfObjects);
-                Instantiate(collectablePrefab, new Vector3(xPos, yPos), Quaternion.identity, floatingObjectParent);
-                if (i == numberOfObjects / 2)
+                int randomObjIndex = GetRandomObject();
+                if (randomObjIndex == 2)
                 {
-                    fuelingStationPos += distanceBetweenAnswers;
+                    GameObject notSpawned = Instantiate(spawnedObjectPrefab, CalculatePosition(fuelingStationPos, i), Quaternion.identity, floatingObjectParent);
+                    notSpawned.SetActive(false);
+                    Debug.Log("Not visible");
+                }
+
+                GameObject obj = Instantiate(spawnedObjectPrefab, CalculatePosition(fuelingStationPos, i), Quaternion.identity, floatingObjectParent);
+                SpawnedObject spawnedObject = obj.GetComponent<SpawnedObject>();
+                if (randomObjIndex == 0)
+                {
+                    spawnedObject.TurnIntoCollectable();
+                } else if (randomObjIndex == 1)
+                {
+                    spawnedObject.TurnIntoObstacle();
+                }
+            }
+
+            fuelingStationPos += distanceBetweenAnswers;
+
+            for (int i = 0; i < numberOfObjects; i++)
+            {
+                int randomObjIndex = GetRandomObject();
+                if (randomObjIndex == 2)
+                {
+                    GameObject notSpawned = Instantiate(spawnedObjectPrefab, CalculatePosition(fuelingStationPos, i), Quaternion.identity, floatingObjectParent);
+                    SpawnedObject test = notSpawned.GetComponent<SpawnedObject>();
+                    test.TurnIntoObstacle();
+                    notSpawned.SetActive(false);
+
+                    continue;
+                }
+
+                GameObject obj = Instantiate(spawnedObjectPrefab, CalculatePosition(fuelingStationPos, i), Quaternion.identity, floatingObjectParent);
+                SpawnedObject spawnedObject = obj.GetComponent<SpawnedObject>();
+                if (randomObjIndex == 0)
+                {
+                    spawnedObject.TurnIntoCollectable();
+                }
+                else if (randomObjIndex == 1)
+                {
+                    spawnedObject.TurnIntoObstacle();
                 }
             }
             return;
         }
         else
         {
+            Debug.Log("Recycle");
+            fuelingStationPos += distanceBetweenAnswers;
             for (int i = 0; i < numberOfObjects; i++)
             {
-                float xPos = Random.Range(-8.5f, 8.5f);
-                float yPos = fuelingStationPos - distanceBetweenAnswers + i * (distanceBetweenAnswers / numberOfObjects);
-                floatingObjectParent.GetChild(floatingObjectParent.childCount - 1 - i).position = new Vector3(xPos, yPos, -3);
-                floatingObjectParent.GetChild(i).SetSiblingIndex(0);
+                int randomObjIndex = GetRandomObject();
+                if (randomObjIndex == 2)
+                {
+                    // disable this object
+                    continue;
+                }
+
+                Transform obj = floatingObjectParent.GetChild(0);
+                obj.gameObject.SetActive(true);
+                obj.position = CalculatePosition(fuelingStationPos, i);
+                SpawnedObject spawnedObject = obj.GetComponent<SpawnedObject>();
+
+                if (randomObjIndex == 0)
+                {
+                    spawnedObject.TurnIntoCollectable();
+                }
+                else if (randomObjIndex == 1)
+                {
+                    spawnedObject.TurnIntoObstacle();
+                }
+
+                floatingObjectParent.GetChild(0).SetAsLastSibling();
             } 
         }
         
     }
+
+    #endregion object spawner
 }

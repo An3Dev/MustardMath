@@ -12,6 +12,8 @@ public class BarrierSpawner : MonoBehaviour
 
     Vector2 barrierSize;
 
+    float lastTriggerTime = 0;
+
     public int numOfRecycles = 0;
     private void Start()
     {
@@ -38,7 +40,11 @@ public class BarrierSpawner : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            RecycleBarriers();
+            if (Time.timeSinceLevelLoad - lastTriggerTime > 5)
+            {
+                RecycleBarriers();
+                lastTriggerTime = Time.timeSinceLevelLoad;
+            }          
         }
     }
 }

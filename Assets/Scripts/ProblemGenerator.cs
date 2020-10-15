@@ -33,6 +33,7 @@ public class ProblemGenerator : MonoBehaviour
     int[] winningStreaks = new int[] { 0, 0, 0, 0 };
     int[] losingStreaks = new int[] { 0, 0, 0, 0 };
 
+    public Animator canvasAnim;
 
     public Image[] operationButtons;
     string levelsPrefsKey;
@@ -56,8 +57,8 @@ public class ProblemGenerator : MonoBehaviour
 
 
     int randomOperation = -1;
-    int streaksToProgress = 2;
-    int losingStreaksToDemote = 2;
+    int streaksToProgress = 5;
+    int losingStreaksToDemote = 3;
 
     private void Start()
     {
@@ -125,7 +126,6 @@ public class ProblemGenerator : MonoBehaviour
 
         }
 
-        print(key + " " + thisString);
         PlayerPrefs.SetString(key, thisString);
     }
 
@@ -184,6 +184,20 @@ public class ProblemGenerator : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+    public void PlayCorrectAnswerAnimation()
+    {
+        canvasAnim.SetTrigger("CorrectAnswer");
+    }
+
+    public void PlayWrongAnswerAnimation()
+    {
+        canvasAnim.SetTrigger("WrongAnswer");
+    }
+    public void FadeOutText()
+    {
+        canvasAnim.SetTrigger("FadeOutText");
+    }
+
     public void UpdateText()
     {
         problemText.text = numberList[0] + " " + operationString + " " + numberList[1] + " = " + solution;
@@ -198,7 +212,6 @@ public class ProblemGenerator : MonoBehaviour
         {
             winningStreaks[randomOperation] = 0;
             levels[randomOperation]++;
-            Debug.Log(levels[randomOperation]);
         }
 
         SaveArrayAsPref(streakKey, winningStreaks);
@@ -237,7 +250,6 @@ public class ProblemGenerator : MonoBehaviour
    
     public void GenerateProblem()
     {
-
         numberList.Clear();
         // generate a problem with random numbers
 
@@ -275,6 +287,8 @@ public class ProblemGenerator : MonoBehaviour
             {
                 levels[1] = subtractionRangeOfNums.Length - 1;
             }
+
+            Debug.Log("Give negative solutions: " + giveNegativeSolutions);
             //int tempLevel = level - subtractingAppearanceLevel >= subtractingRangeOfNums.Length ? subtractingRangeOfNums.Length - 1 : level - subtractingAppearanceLevel;
             // make this number have a minimum of 1 if we don't want negatives.
             num1 = Random.Range(!giveNegativeSolutions ? 1 : minSubtractionNums[levels[1]], subtractionRangeOfNums[levels[1]] + 1);
@@ -322,8 +336,13 @@ public class ProblemGenerator : MonoBehaviour
         //Debug.Log(num1 + " " + operationString + " " + num2 + " = " + solution);
         string equation = num1 + " " + operationString + " " + num2 + " = ?";
 
+
+
         problemText.text = equation;
         problemText.gameObject.SetActive(true);
+
+        canvasAnim.SetTrigger("FadeInText");
+
         // Shuffle the text For each spot in the array, pick a random item to swap into that spot.
         System.Random rand = new System.Random();
         for (int i = 0; i < possibleSolutionsText.Length - 1; i++)
