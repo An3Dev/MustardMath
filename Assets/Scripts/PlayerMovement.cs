@@ -71,6 +71,7 @@ public class PlayerMovement : MonoBehaviour
     public AudioClip collectGasSoundEffect;
     public AudioSource soundEffectsAudioSource;
 
+    public GameObject pauseMenu;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -112,6 +113,24 @@ public class PlayerMovement : MonoBehaviour
         } else
         {
             targetDir = 0;
+        }
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (!pauseMenu.activeInHierarchy)
+            {
+                pauseMenu.SetActive(true);
+                cancelSlowMo = true;
+                Time.timeScale = 0.01f;
+                audioSource.pitch = 0.01f;
+            }else
+            {
+                pauseMenu.SetActive(false);
+                cancelSlowMo = true;
+                Time.timeScale = 1;
+                audioSource.pitch = 1;
+
+            }
         }
 
         // if space is pressed, cancel slow motion.
@@ -191,7 +210,7 @@ public class PlayerMovement : MonoBehaviour
         
         if (collision.gameObject.layer == LayerMask.NameToLayer("FuelingStation"))
         {
-
+            cancelSlowMo = true;
             Time.timeScale = 1;
             audioSource.pitch = 1;
 
@@ -238,6 +257,7 @@ public class PlayerMovement : MonoBehaviour
                 fuelTankAnimator2.SetTrigger(fuelTankAnimator2.transform == collision.transform ? "Fade" : "SimpleFade");
                 fuelTankAnimator3.SetTrigger(fuelTankAnimator3.transform == collision.transform ? "Fade" : "SimpleFade");
                 fuelTankAnimator4.SetTrigger(fuelTankAnimator4.transform == collision.transform ? "Fade" : "SimpleFade");
+
 
 
                 soundEffectsAudioSource.PlayOneShot(collectGasSoundEffect);

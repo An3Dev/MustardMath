@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 using TMPro;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using System.Linq;
 
 public class ProblemGenerator : MonoBehaviour
 {
@@ -123,9 +120,7 @@ public class ProblemGenerator : MonoBehaviour
             {
                 thisString += "," + array[i].ToString();
             }
-
         }
-
         PlayerPrefs.SetString(key, thisString);
     }
 
