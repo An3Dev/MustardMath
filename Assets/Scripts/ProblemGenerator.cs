@@ -105,10 +105,10 @@ public class ProblemGenerator : MonoBehaviour
         selectOperationsMessage.SetActive(true);
     }
 
-    private void LateUpdate()
-    {
-        Time.timeScale = 100;
-    }
+    //private void LateUpdate()
+    //{
+    //    Time.timeScale = 100;
+    //}
 
     #region data storage
 
