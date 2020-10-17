@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 0
+  m_UseShadowmask: 1
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -5667,13 +5667,16 @@ MonoBehaviour:
   audioSource: {fileID: 461696635}
   correctAnswerPS: {fileID: 594613930}
   incorrectAnswerPS: {fileID: 56525990}
-  maxFuel: 100
+  maxFuel: 1000000
   exhaustOne: {fileID: 1060505131}
   exhaustTwo: {fileID: 1534564080}
   collectGasSoundEffect: {fileID: 8300000, guid: 1ac9e68bce566d547954f6f9493b905a,
     type: 3}
+  wrongAnswerSoundEffect: {fileID: 8300000, guid: 38d5affc613181f46969fe15b71d0d54,
+    type: 3}
   soundEffectsAudioSource: {fileID: 1540649777}
   pauseMenu: {fileID: 870850231}
+  gameOverMessage: {fileID: 100496192}
 --- !u!60 &461696633
 PolygonCollider2D:
   m_ObjectHideFlags: 0

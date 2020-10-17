@@ -51,7 +51,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 1.95
+  m_Radius: 1.53
 --- !u!114 &1579396810390788059
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -74,14 +74,15 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 9b28151c573252a46be15607bee7ba3e, type: 3}
   - {fileID: 21300000, guid: 29f3620f07248c9458a5e37df1dfad16, type: 3}
   - {fileID: 21300000, guid: a60279dccf90f6b44812f1617d978b67, type: 3}
+  - {fileID: 21300000, guid: 92264d397fcca5345af10daec11fcdc8, type: 3}
   obstacleImages:
   - {fileID: 21300000, guid: 9a09b6b34f8e8e44baf729b7ee9b7744, type: 3}
   - {fileID: 21300000, guid: a1ebce252388c1a44b0ac0a293e8eee1, type: 3}
   - {fileID: 21300000, guid: 8e6ccd86e543a1c4693b1d70f8d12b20, type: 3}
   collectableCollider: {fileID: 402607092068609078}
   obstacleCollider: {fileID: 7462350020002510597}
-  collectableSize: {x: 0.3, y: 0.35}
-  obstacleSize: {x: 1, y: 2}
+  collectableSize: {x: 0.25, y: 0.35}
+  obstacleSize: {x: 1, y: 1.8}
 --- !u!95 &9009504629586875321
 Animator:
   serializedVersion: 3
@@ -113,7 +114,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1000
+  m_Mass: 500
   m_LinearDrag: 0
   m_AngularDrag: 0
   m_GravityScale: 0
@@ -135,7 +136,7 @@ CircleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.06, y: -0.2}
+  m_Offset: {x: -0.28, y: 0.1}
   serializedVersion: 2
   m_Radius: 2.17
 --- !u!1 &5672385844053606443
@@ -208,7 +209,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 29f3620f07248c9458a5e37df1dfad16, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9b28151c573252a46be15607bee7ba3e, type: 3}
   m_Color: {r: 0.7924528, g: 0.7924528, b: 0.7924528, a: 1}
   m_FlipX: 0
   m_FlipY: 0

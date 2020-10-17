@@ -42,16 +42,16 @@ public class ProblemGenerator : MonoBehaviour
     int[] subtractionRangeOfNums = new int[] { 5, 7, 10, 20, 30, 40, 50, 60 };
     int[] minSubtractionNums = new int[] { 0, 1, 2, 3, 5, 10, 10, 10};
 
-    int[] multiplicationRangeOfNums = new int[] { 3, 5, 7, 10, 12 };
-    int[] minMultiplicationNums = new int[] { 0, 1, 2, 3, 5, 7 };
+    int[] multiplicationRangeOfNums = new int[] { 3, 5, 7, 10, 12, 13, 14, 15 };
+    int[] minMultiplicationNums = new int[] { 0, 1, 2, 3, 5, 5, 5, 5 };
 
-    int[] divisionRangeOfNums = new int[] { 3, 5, 7, 10, 12 };
-    int[] minDivisionNums = new int[] { 0, 1, 2, 3, 5, 5};
+    int[] divisionRangeOfNums = new int[] { 3, 5, 7, 10, 12, 13, 14, 15 };
+    int[] minDivisionNums = new int[] { 0, 1, 2, 3, 5, 5, 5, 5};
     public Transform solutionTransform;
 
     String streakKey = "StreakKey";
     String losingStreakKey = "LosingStreakKey";
-
+    
 
     int randomOperation = -1;
     int streaksToProgress = 5;
@@ -59,10 +59,13 @@ public class ProblemGenerator : MonoBehaviour
 
     private void Start()
     {
+
+        //PlayerPrefs.DeleteAll();
         levels = GetArrayFromPrefs(levelsPrefsKey);
         winningStreaks = GetArrayFromPrefs(streakKey);
         losingStreaks = GetArrayFromPrefs(losingStreakKey);
 
+        levels = new int[] { 7, 7, 7, 7};
         if (SceneManager.GetActiveScene().buildIndex == 0)
         {
            for(int i = 0; i < levels.Length; i++)
@@ -100,6 +103,11 @@ public class ProblemGenerator : MonoBehaviour
         // disable the start button because no operations are selected
         startBtn.SetActive(false);
         selectOperationsMessage.SetActive(true);
+    }
+
+    private void LateUpdate()
+    {
+        Time.timeScale = 100;
     }
 
     #region data storage
@@ -196,6 +204,8 @@ public class ProblemGenerator : MonoBehaviour
     public void UpdateText()
     {
         problemText.text = numberList[0] + " " + operationString + " " + numberList[1] + " = " + solution;
+        Debug.Log("Update text from update text method");
+
     }
 
     public void AddToStreak()

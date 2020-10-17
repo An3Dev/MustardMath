@@ -10,5 +10,6 @@ public class CanvasManager : MonoBehaviour
     public void UpdateText()
     {
         problemGen.UpdateText();
+        Debug.Log("UpdateTextFromCanvasManager");
     }
 }

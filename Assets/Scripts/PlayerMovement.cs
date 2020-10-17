@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -68,13 +70,18 @@ public class PlayerMovement : MonoBehaviour
 
     public ParticleSystem exhaustOne, exhaustTwo;
 
-    public AudioClip collectGasSoundEffect;
+    public AudioClip collectGasSoundEffect, wrongAnswerSoundEffect;
     public AudioSource soundEffectsAudioSource;
 
     public GameObject pauseMenu;
+    
+    public TextMeshProUGUI gameOverMessage;
+    String[] gameOverMessages = new String[] { "Great Job!", "Keep Trying!", "You're Improving!", "Nice Job!", "You Did Awesome!" };
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+
     }
 
 
@@ -85,6 +92,7 @@ public class PlayerMovement : MonoBehaviour
         fuelTankColor = fuelingTankRenderer1.color;
 
         SpawnObstacles(fuelingStation.transform.position.y);
+        Time.timeScale = 1;
     }
 
     // Update is called once per frame
@@ -134,7 +142,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // if space is pressed, cancel slow motion.
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.LeftControl) || Input.GetKeyDown(KeyCode.RightControl))
         {
             Time.timeScale = 1;
             audioSource.pitch = 1;
@@ -154,8 +162,11 @@ public class PlayerMovement : MonoBehaviour
             exhaust.gameObject.SetActive(false);
             exhaustOne.Stop();
             exhaustTwo.Stop();
+
+            int randomIndex = UnityEngine.Random.Range(0, gameOverMessages.Length);
+
+            gameOverMessage.text = gameOverMessages[randomIndex];
             
-            // show stats
         }
 
         // if rocket is close enough to the fueling station, slow down time to give use time to think.
@@ -275,6 +286,8 @@ public class PlayerMovement : MonoBehaviour
 
                 collision.transform.GetComponent<Animator>().SetTrigger("Wrong");
                 problemGenerator.PlayWrongAnswerAnimation();
+                soundEffectsAudioSource.PlayOneShot(wrongAnswerSoundEffect);
+
 
                 // disable collider
                 collision.transform.GetComponent<Collider2D>().enabled = false;

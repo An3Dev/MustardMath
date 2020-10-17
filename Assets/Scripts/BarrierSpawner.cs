@@ -15,6 +15,8 @@ public class BarrierSpawner : MonoBehaviour
     float lastTriggerTime = 0;
 
     public int numOfRecycles = 0;
+
+    float lastTriggerHeight;
     private void Start()
     {
         barrierSize = barrierPrefab.transform.GetChild(0).GetComponent<MeshRenderer>().bounds.size;
@@ -40,10 +42,11 @@ public class BarrierSpawner : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         { 
-            if (Time.timeSinceLevelLoad - lastTriggerTime > 5)
+            if (Time.timeSinceLevelLoad - lastTriggerTime > 5 && player.position.y - lastTriggerHeight > 20)
             {
                 RecycleBarriers();
                 lastTriggerTime = Time.timeSinceLevelLoad;
+                lastTriggerHeight = player.position.y;
             }          
         }
     }
