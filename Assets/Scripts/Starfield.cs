@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
  
- 
 public class Starfield : MonoBehaviour
 {
 	public int MaxStars = 100;
@@ -27,21 +26,20 @@ public class Starfield : MonoBehaviour
 		Particles = GetComponent<ParticleSystem>();
 
 		theCamera = Camera.main.transform;
-		Assert.IsNotNull(Particles, "Particle system missing from object!");
 
-		xOffset = FieldWidth * 0.5f;                                                                                                        // Offset the coordinates to distribute the spread
-		yOffset = FieldHeight * 0.5f;                                                                                                       // around the object's center
+		xOffset = FieldWidth * 0.5f; // Offset the coordinates to distribute the spread
+		yOffset = FieldHeight * 0.5f;  // around the object's center
 
 		for (int i = 0; i < MaxStars; i++)
 		{
-			float randSize = Random.Range(StarSizeRange, StarSizeRange + 1f);                       // Randomize star size within parameters
-			float scaledColor = (true == Colorize) ? randSize - StarSizeRange : 1f;         // If coloration is desired, color based on size
+			float randSize = Random.Range(StarSizeRange, StarSizeRange + 1f);// Randomize star size within parameters
+			float scaledColor = (true == Colorize) ? randSize - StarSizeRange : 1f;// If coloration is desired, color based on size
 
 			Stars[i].position = GetRandomInRectangle(FieldWidth, FieldHeight) + transform.position;
 			Stars[i].startSize = StarSize * randSize;
 			Stars[i].startColor = new Color(1f, scaledColor, scaledColor, 1f);
 		}
-		Particles.SetParticles(Stars, Stars.Length);                                                                // Write data to the particle system
+		Particles.SetParticles(Stars, Stars.Length);// Write data to the particle system
 	}
 
 

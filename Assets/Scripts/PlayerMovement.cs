@@ -70,7 +70,7 @@ public class PlayerMovement : MonoBehaviour
 
     public ParticleSystem exhaustOne, exhaustTwo;
 
-    public AudioClip collectGasSoundEffect, wrongAnswerSoundEffect;
+    public AudioClip collectGasSoundEffect, wrongAnswerSoundEffect, correctAnswerSFX;
     public AudioSource soundEffectsAudioSource;
 
     public GameObject pauseMenu;
@@ -270,12 +270,7 @@ public class PlayerMovement : MonoBehaviour
                 fuelTankAnimator4.SetTrigger(fuelTankAnimator4.transform == collision.transform ? "Fade" : "SimpleFade");
 
 
-
-                soundEffectsAudioSource.PlayOneShot(collectGasSoundEffect);
-                // show correct equation for a few seconds, then dissolve it.
-
-
-                // obstacles. fuel position.y - 20
+                soundEffectsAudioSource.PlayOneShot(correctAnswerSFX);
 
                 problemGenerator.PlayCorrectAnswerAnimation();
 
@@ -311,9 +306,6 @@ public class PlayerMovement : MonoBehaviour
             // add force in opposite direction
             MoveRocket(collision.GetContact(0).point);
 
-        } else if (collision.collider.CompareTag("Obstacle"))
-        {
-            Debug.Log("Obstacle");
         }
     }
 
@@ -323,12 +315,8 @@ public class PlayerMovement : MonoBehaviour
         {
             // add force in opposite direction
             MoveRocket(collision.GetContact(0).point);
-
         }
-        else if (collision.collider.CompareTag("Obstacle"))
-        {
-            Debug.Log("Obstacle");
-        }
+       
     }
 
     private void OnCollisionExit2D(Collision2D collision)
@@ -367,7 +355,6 @@ public class PlayerMovement : MonoBehaviour
         {
             return;
         }
-        Debug.Log("Move fuel station");
 
         lastMoveTime = Time.timeSinceLevelLoad;
         // move fueling station to next location
@@ -437,7 +424,6 @@ public class PlayerMovement : MonoBehaviour
                 {
                     GameObject notSpawned = Instantiate(spawnedObjectPrefab, CalculatePosition(fuelingStationPos, i), Quaternion.identity, floatingObjectParent);
                     notSpawned.SetActive(false);
-                    Debug.Log("Not visible");
                 }
 
                 GameObject obj = Instantiate(spawnedObjectPrefab, CalculatePosition(fuelingStationPos, i), Quaternion.identity, floatingObjectParent);
@@ -481,7 +467,6 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            Debug.Log("Recycle");
             fuelingStationPos += distanceBetweenAnswers;
             for (int i = 0; i < numberOfObjects; i++)
             {

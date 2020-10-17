@@ -76,12 +76,17 @@ public class SpawnedObject : MonoBehaviour
         {
             // play collected animation
             anim.SetTrigger("Collected");
+            //player.SendMessage("CollectedTrash");
         }
     }
 
     public void DisableObject()
     {
-        player.SendMessage("CollectedTrash");
         gameObject.SetActive(false);
+    }
+
+    public void Collected()
+    {
+        player.SendMessage("CollectedTrash");
     }
 }

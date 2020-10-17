@@ -65,7 +65,6 @@ public class ProblemGenerator : MonoBehaviour
         winningStreaks = GetArrayFromPrefs(streakKey);
         losingStreaks = GetArrayFromPrefs(losingStreakKey);
 
-        levels = new int[] { 7, 7, 7, 7};
         if (SceneManager.GetActiveScene().buildIndex == 0)
         {
            for(int i = 0; i < levels.Length; i++)
@@ -104,11 +103,6 @@ public class ProblemGenerator : MonoBehaviour
         startBtn.SetActive(false);
         selectOperationsMessage.SetActive(true);
     }
-
-    //private void LateUpdate()
-    //{
-    //    Time.timeScale = 100;
-    //}
 
     #region data storage
 
@@ -204,7 +198,6 @@ public class ProblemGenerator : MonoBehaviour
     public void UpdateText()
     {
         problemText.text = numberList[0] + " " + operationString + " " + numberList[1] + " = " + solution;
-        Debug.Log("Update text from update text method");
 
     }
 
@@ -242,7 +235,6 @@ public class ProblemGenerator : MonoBehaviour
             {
                 // demote levels
                 levels[randomOperation]--;
-                Debug.Log(levels[randomOperation]);
 
             }
         }
@@ -293,7 +285,6 @@ public class ProblemGenerator : MonoBehaviour
                 levels[1] = subtractionRangeOfNums.Length - 1;
             }
 
-            Debug.Log("Give negative solutions: " + giveNegativeSolutions);
             //int tempLevel = level - subtractingAppearanceLevel >= subtractingRangeOfNums.Length ? subtractingRangeOfNums.Length - 1 : level - subtractingAppearanceLevel;
             // make this number have a minimum of 1 if we don't want negatives.
             num1 = Random.Range(!giveNegativeSolutions ? 1 : minSubtractionNums[levels[1]], subtractionRangeOfNums[levels[1]] + 1);
