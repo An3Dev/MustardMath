@@ -41,13 +41,14 @@ public class BarrierSpawner : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
-        { 
+        {
             if (Time.timeSinceLevelLoad - lastTriggerTime > 5 && player.position.y - lastTriggerHeight > 20)
             {
                 RecycleBarriers();
+
                 lastTriggerTime = Time.timeSinceLevelLoad;
                 lastTriggerHeight = player.position.y;
-            }          
+            }
         }
     }
 }

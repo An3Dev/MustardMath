@@ -65,6 +65,7 @@ public class ProblemGenerator : MonoBehaviour
         winningStreaks = GetArrayFromPrefs(streakKey);
         losingStreaks = GetArrayFromPrefs(losingStreakKey);
 
+        levels = new int[] {3, 3, 3, 3};
         if (SceneManager.GetActiveScene().buildIndex == 0)
         {
            for(int i = 0; i < levels.Length; i++)
@@ -332,14 +333,12 @@ public class ProblemGenerator : MonoBehaviour
         //Debug.Log(num1 + " " + operationString + " " + num2 + " = " + solution);
         string equation = num1 + " " + operationString + " " + num2 + " = ?";
 
-
-
         problemText.text = equation;
         problemText.gameObject.SetActive(true);
 
         canvasAnim.SetTrigger("FadeInText");
 
-        // Shuffle the text For each spot in the array, pick a random item to swap into that spot.
+        // Shuffle the text. For each spot in the array, pick a random item to swap into that spot.
         System.Random rand = new System.Random();
         for (int i = 0; i < possibleSolutionsText.Length - 1; i++)
         {
@@ -355,7 +354,7 @@ public class ProblemGenerator : MonoBehaviour
         {
             int possibleSolution = (int)solution;
 
-            // random addition
+            // random addition 
             if (i > 0)
             {
                 // do this until the wrong solution is not equal to the actual solution
@@ -370,8 +369,6 @@ public class ProblemGenerator : MonoBehaviour
             }
             tempSolutions.Add(possibleSolution);
             possibleSolutionsText[i].text = possibleSolution.ToString();
-            // TODO: make sure there are no duplicate possible solutions
         }
-
     }
 }

@@ -78,10 +78,11 @@ public class PlayerMovement : MonoBehaviour
     public TextMeshProUGUI gameOverMessage;
     String[] gameOverMessages = new String[] { "Great Job!", "Keep Trying!", "You're Improving!", "Nice Job!", "You Did Awesome!" };
 
+    float cancelSlowMoTime = 0.1f;
+    float lastFingerHold;
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-
     }
 
 
@@ -111,6 +112,15 @@ public class PlayerMovement : MonoBehaviour
             MoveFuelStation();
         }
 
+        if (Input.touchCount > 1 && Time.time - lastFingerHold > cancelSlowMoTime) 
+        {
+            Time.timeScale = 1f;
+            audioSource.pitch = 1;
+            cancelSlowMo = true;
+            lastFingerHold = Time.time;
+            Debug.Log("Cancel");
+        }
+
         if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow) && !turningOffWall)
         {
             targetDir = -1;
@@ -118,7 +128,18 @@ public class PlayerMovement : MonoBehaviour
         else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow) && !turningOffWall)
         {
             targetDir = 1;
-        } else
+        } else if (Input.GetMouseButton(0))
+        {
+            if (Input.mousePosition.x < Screen.width / 2)
+            {
+                targetDir = -1;
+            }
+            if (Input.mousePosition.x > Screen.width / 2)
+            {
+                targetDir = 1;
+            }
+        }
+        else
         {
             targetDir = 0;
         }
@@ -127,17 +148,11 @@ public class PlayerMovement : MonoBehaviour
         {
             if (!pauseMenu.activeInHierarchy)
             {
-                pauseMenu.SetActive(true);
-                cancelSlowMo = true;
-                Time.timeScale = 0.01f;
-                audioSource.pitch = 0.01f;
+                Pause();
             }else
             {
-                pauseMenu.SetActive(false);
-                cancelSlowMo = true;
-                Time.timeScale = 1;
-                audioSource.pitch = 1;
 
+                Resume();
             }
         }
 
@@ -180,6 +195,21 @@ public class PlayerMovement : MonoBehaviour
         fuelUsed += fuelPerSecond * Time.deltaTime;
     }
 
+    public void Pause()
+    {
+        pauseMenu.SetActive(true);
+        cancelSlowMo = true;
+        Time.timeScale = 0.01f;
+        audioSource.pitch = 0.01f;
+    }
+
+    public void Resume()
+    {
+        pauseMenu.SetActive(false);
+        cancelSlowMo = true;
+        Time.timeScale = 1;
+        audioSource.pitch = 1;
+    }
     private void FixedUpdate()
     {
 
@@ -325,7 +355,6 @@ public class PlayerMovement : MonoBehaviour
         {
             // add force in opposite direction
             turningOffWall = false;
-
         }
     }
     // moves the rocket away from wall
@@ -493,8 +522,7 @@ public class PlayerMovement : MonoBehaviour
 
                 floatingObjectParent.GetChild(0).SetAsLastSibling();
             } 
-        }
-        
+        }// Hi Mr. Ceara       
     }
 
     #endregion object spawner
